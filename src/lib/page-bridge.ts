@@ -60,7 +60,10 @@ export function installPageBridge(): void {
     set(value) {
       initialData = value;
       try {
-        const lcc = (value as AnyRecord)?.continuationContents?.liveChatContinuation;
+        // The embedded chat frame uses `continuationContents.liveChatContinuation`; the popout
+        // (`/live_chat?is_popout=1&v=…`) uses `contents.liveChatRenderer`. Same shape inside.
+        const data = value as AnyRecord;
+        const lcc = data?.continuationContents?.liveChatContinuation ?? data?.contents?.liveChatRenderer;
         if (lcc?.actions?.length) {
           emit({ reset: true, actions: structuredClone(lcc.actions), viewerName: lcc.viewerName });
         }
