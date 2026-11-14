@@ -27,6 +27,12 @@ pnpm check    # svelte-check / TypeScript
 pnpm build    # production build in .output/chrome-mv3
 ```
 
+### Comparing with YouTube's own list
+Press **Alt+Shift+N** in the chat to switch between our list and YouTube's native one (it keeps
+rendering hidden behind ours). Page CSS can't do this, because the shadow root's
+`:host { all: initial !important }` wins over it. While hidden, YouTube's list may hold back *new*
+messages, so compare the existing ones.
+
 ### Capturing fixtures
 In dev builds the page bridge keeps the last 300 raw `get_live_chat` responses. In DevTools, switch
 the console's context to the `live_chat` frame and run `copy(JSON.stringify(__bytcLog))`.

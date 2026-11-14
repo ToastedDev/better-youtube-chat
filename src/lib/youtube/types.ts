@@ -73,6 +73,13 @@ export interface LiveChatTextMessageRenderer {
   authorBadges?: AuthorBadge[];
   beforeContentButtons?: { buttonViewModel?: ButtonViewModel }[];
   contextMenuEndpoint?: { liveChatItemContextMenuEndpoint?: { params: string } };
+  /** Present when the viewer can moderate (Remove / timeout / hide quick actions). */
+  inlineActionButtons?: unknown[];
+}
+
+export interface ButtonRenderer {
+  text?: FormattedText;
+  navigationEndpoint?: NavigationEndpoint;
 }
 
 export interface LiveChatViewerEngagementMessageRenderer {
@@ -80,6 +87,7 @@ export interface LiveChatViewerEngagementMessageRenderer {
   timestampUsec?: string;
   message?: FormattedText;
   icon?: { iconType: string };
+  actionButton?: { buttonRenderer?: ButtonRenderer };
 }
 
 export interface ChatItemRenderer {
@@ -91,8 +99,17 @@ export interface ChatItemRenderer {
 export interface ChatAction {
   addChatItemAction?: { item: ChatItemRenderer };
   removeChatItemAction?: { targetItemId: string };
-  markChatItemAsDeletedAction?: { targetItemId: string; deletedStateMessage?: FormattedText };
-  markChatItemsByAuthorAsDeletedAction?: { externalChannelId: string; deletedStateMessage?: FormattedText };
+  markChatItemAsDeletedAction?: {
+    targetItemId: string;
+    deletedStateMessage?: FormattedText;
+    /** Moderators only: label of the toggle that reveals the original message. */
+    showOriginalContentMessage?: FormattedText;
+  };
+  markChatItemsByAuthorAsDeletedAction?: {
+    externalChannelId: string;
+    deletedStateMessage?: FormattedText;
+    showOriginalContentMessage?: FormattedText;
+  };
   removeChatItemByAuthorAction?: { externalChannelId: string };
   replaceChatItemAction?: { targetItemId: string; replacementItem: ChatItemRenderer };
   [action: string]: unknown;

@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { MenuTarget, TextChatItem } from '@/lib/chat/model';
+  import { ICONS } from '@/lib/icons';
   import Icon from './Icon.svelte';
   import Segments from './Segments.svelte';
 
@@ -16,6 +17,13 @@
   } = $props();
 
   const author = $derived(item.author);
+  const time = $derived(
+    new Date(Number(item.timestampUsec) / 1000).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }),
+  );
+  /** Moderators can reveal a deleted message's original text, like YouTube's "View deleted message". */
+  let revealed = $state(false);
+  // Badges without a drawable icon (e.g. OWNER, shown by the name chip instead) would leave a gap.
+  const badges = $derived(author.badges.filter((b) => b.kind === 'image' || b.icon in ICONS));
 
   function openFromElement(event: MouseEvent, alignRight: boolean) {
     const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
@@ -28,6 +36,15 @@
     });
   }
 
+  /** For moderators YouTube makes the whole message clickable to open the menu. */
+  function onclick(event: MouseEvent) {
+    if (!item.canModerate) return;
+    const target = event.target as Element;
+    if (target.closest('a, button')) return;
+    if (window.getSelection()?.toString()) return; // Let people select text.
+    onmenu({ item, x: event.clientX, y: event.clientY });
+  }
+
   function oncontextmenu(event: MouseEvent) {
     if (event.shiftKey) return; // Shift+right-click keeps the browser menu.
     event.preventDefault();
@@ -35,26 +52,43 @@
   }
 </script>
 
-<div class="message" class:menu-open={menuOpen} class:deleted={!!item.deleted} role="listitem" {oncontextmenu}>
+<!-- Row click is a mouse shortcut for moderators; the ⋮ button is the keyboard path. -->
+<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_noninteractive_element_interactions -->
+<div
+  class="message"
+  class:menu-open={menuOpen}
+  class:deleted={!!item.deleted}
+  class:clickable={item.canModerate}
+  class:bar={!!item.deleted?.showOriginalLabel}
+  role="listitem"
+  {onclick}
+  {oncontextmenu}
+>
   {#if author.photo}
     <img class="avatar" src={author.photo} alt="" loading="lazy" draggable="false" />
   {:else}
     <span class="avatar"></span>
   {/if}
   <div class="content">
-    <button
+    <span class="timestamp">{time}</span><button
       type="button"
       class="author"
       class:owner={author.isOwner}
       class:moderator={author.isModerator}
       class:member={author.isMember}
+      class:verified={author.isVerified}
       onclick={(e) => openFromElement(e, false)}>{author.name}</button
-    >{#each author.badges as badge, i (i)}<span class="badge" class:moderator={badge.kind === 'icon' && badge.icon === 'MODERATOR'} title={badge.label}
+    >{#each badges as badge, i (i)}<span class="badge" class:moderator={badge.kind === 'icon' && badge.icon === 'MODERATOR'} title={badge.label}
         >{#if badge.kind === 'image'}<img src={badge.src} alt={badge.label} />{:else}<Icon name={badge.icon} size={16} />{/if}</span
       >{/each}{#each item.chips as chip, i (i)}<span class="chip" style:background={chip.background} style:color={chip.color}
         >{#if chip.icon}<Icon name={chip.icon} size={14} />{/if}{chip.label}</span
-      >{/each}
-    <span class="text"><Segments segments={item.deleted ?? item.message} {viewerName} /></span>
+      >{/each}<!-- No whitespace before the text: spacing comes from the margins, like YouTube. -->{#if item.deleted && !revealed}<span
+        class="text">{item.deleted.text}</span
+      >{#if item.deleted.showOriginalLabel}<button
+          type="button"
+          class="show-original"
+          onclick={() => (revealed = true)}>{item.deleted.showOriginalLabel}</button
+        >{/if}{:else}<span class="text"><Segments segments={item.message} {viewerName} /></span>{/if}
   </div>
   <button type="button" class="menu-button" aria-label="Chat actions" onclick={(e) => openFromElement(e, true)}>
     <Icon name="MORE_VERT" />
@@ -68,6 +102,33 @@
     align-items: flex-start;
     padding: 4px 24px;
     font-size: 14px;
+  }
+  .message.clickable {
+    cursor: pointer;
+  }
+  .message.clickable:hover,
+  .message.clickable.menu-open {
+    background: var(--bytc-row-hover);
+  }
+  /* Moderator view of a deleted message gets a bar on the left, like YouTube. */
+  .message.bar::before {
+    content: '';
+    position: absolute;
+    top: 4px;
+    bottom: 4px;
+    left: 8px;
+    width: 4px;
+    border-radius: 2px;
+    background: var(--bytc-deleted-bar);
+  }
+  .timestamp {
+    display: none;
+    margin-right: 8px;
+    font-size: 11px;
+    color: var(--bytc-text-2);
+  }
+  :global(:host([show-timestamps])) .timestamp {
+    display: inline;
   }
   .avatar {
     flex-shrink: 0;
@@ -91,9 +152,6 @@
     font-weight: 500;
     color: var(--bytc-text-2);
   }
-  .author:hover {
-    text-decoration: underline;
-  }
   .author:focus-visible {
     outline: 2px solid var(--bytc-link);
   }
@@ -103,9 +161,14 @@
   .author.moderator {
     color: var(--bytc-moderator);
   }
+  .author.verified {
+    color: var(--bytc-verified);
+  }
+  /* Sampled from YouTube's own list when available (see native-theme.ts). */
   .author.owner {
-    padding: 2px 4px;
-    border-radius: 2px;
+    padding: var(--bytc-owner-padding, 2px 4px);
+    border-radius: var(--bytc-owner-radius, 2px);
+    line-height: var(--bytc-owner-line-height, normal);
     background: var(--bytc-owner-bg);
     color: var(--bytc-owner-fg);
   }
@@ -148,6 +211,14 @@
   .deleted .text {
     font-style: italic;
     color: var(--bytc-deleted);
+  }
+  .show-original {
+    all: unset;
+    margin-left: 2px;
+    font-style: italic;
+    text-decoration: underline;
+    color: var(--bytc-deleted);
+    cursor: pointer;
   }
   .menu-button {
     all: unset;

@@ -9,6 +9,8 @@ import { listen, post, type ChatPayload, type RpcMap, type RpcMethod } from './p
 import type { RawMenuItem } from './youtube/types';
 
 const LIVE_CHAT_PATH = '/youtubei/v1/live_chat/get_live_chat';
+/** Moderation calls answer with the resulting chat actions; apply them without waiting for the next poll. */
+const ACTION_RESPONSE_PATHS = new Set(['/youtubei/v1/live_chat/moderate', '/youtubei/v1/live_chat/live_chat_action']);
 
 /** Native menu item element tags. Running an item through YouTube's own element reuses its
  *  confirm dialogs, report forms and moderation flows. */
@@ -74,15 +76,22 @@ export function installPageBridge(): void {
     },
   });
 
+  function handleActionResponse(json: AnyRecord) {
+    if (Array.isArray(json?.actions) && json.actions.length) emit({ reset: false, actions: json.actions });
+  }
+
   window.fetch = function (this: unknown, ...args: Parameters<typeof fetch>) {
     const promise = originalFetch.apply(this, args);
     try {
-      if (isLiveChatRequest(args[0])) {
+      const path = requestPath(args[0]);
+      const handler =
+        path === LIVE_CHAT_PATH ? handleResponse : ACTION_RESPONSE_PATHS.has(path) ? handleActionResponse : null;
+      if (handler) {
         promise
           .then((res) => res.clone().json())
           .then((json) => {
             try {
-              handleResponse(json);
+              handler(json);
             } catch (err) {
               console.error('[better-yt-chat] failed to handle chat response', err);
             }
@@ -128,9 +137,9 @@ export function installPageBridge(): void {
   post('page', { type: 'ready' });
 }
 
-function isLiveChatRequest(input: RequestInfo | URL): boolean {
+function requestPath(input: RequestInfo | URL): string {
   const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
-  return new URL(url, location.href).pathname === LIVE_CHAT_PATH;
+  return new URL(url, location.href).pathname;
 }
 
 function ytcfg(key: string): any {

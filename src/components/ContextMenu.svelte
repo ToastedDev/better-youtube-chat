@@ -26,12 +26,15 @@
   const mentionAvailable = canMention();
 
   let menu: HTMLDivElement;
-  let native = $state<NativeEntry[] | 'loading' | 'error'>(item.menuParams ? 'loading' : []);
+  // Raw (not deeply proxied): the item data is posted to the page, and proxies can't be cloned.
+  let native = $state.raw<NativeEntry[] | 'loading' | 'error'>(item.menuParams ? 'loading' : []);
 
-  /** YouTube shows "Go to channel" to moderators already; don't list it twice. */
-  const nativeHasChannelLink = $derived(
-    Array.isArray(native) && native.some((e) => JSON.stringify(e.raw).includes(`"browseId":"${item.author.channelId}"`)),
-  );
+  /** YouTube gives moderators its own "Go to channel" (opens a new window); ours navigates in-app. */
+  function linksToAuthorChannel(raw: RawMenuItem): boolean {
+    const json = JSON.stringify(raw);
+    const id = item.author.channelId;
+    return json.includes(`/channel/${id}"`) || json.includes(`"browseId":"${id}"`);
+  }
 
   onMount(() => {
     menu.showPopover();
@@ -45,7 +48,7 @@
         native = items.flatMap((raw) => {
           const [kind, data] = Object.entries(raw)[0] ?? [];
           const label = textOf(data?.text);
-          if (!kind || !data || !RUNNABLE.has(kind) || !label) return [];
+          if (!kind || !data || !RUNNABLE.has(kind) || !label || linksToAuthorChannel(raw)) return [];
           return [{ label, icon: data.icon?.iconType, disabled: !!data.isDisabled, raw }];
         });
         await tick();
@@ -92,7 +95,7 @@
   }
 
   function copyMessage() {
-    copyText(plainText(item.deleted ?? item.message));
+    copyText(plainText(item.message));
     close();
   }
 
@@ -113,11 +116,9 @@
 </script>
 
 <div class="menu" popover="auto" role="menu" tabindex="-1" bind:this={menu} {ontoggle} {onkeydown}>
-  {#if !nativeHasChannelLink}
-    <a role="menuitem" class="entry" href={channelPath} target="_top" onclick={goToChannel}>
-      <Icon name="ACCOUNT_CIRCLE" /><span>Go to channel</span>
-    </a>
-  {/if}
+  <a role="menuitem" class="entry" href={channelPath} target="_top" onclick={goToChannel}>
+    <Icon name="ACCOUNT_CIRCLE" /><span>Go to channel</span>
+  </a>
   {#if mentionAvailable}
     <button type="button" role="menuitem" class="entry" onclick={mention}>
       <Icon name="ALTERNATE_EMAIL" /><span>Mention</span>

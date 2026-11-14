@@ -81,6 +81,7 @@ function parseBadges(raw: AuthorBadge[] = []): Badge[] {
     const label = r.tooltip ?? '';
     const src = bestThumbnail(r.customThumbnail);
     if (src) badges.push({ kind: 'image', src, label });
+    // OWNER has no visible icon (the name chip shows it) but still counts for the role.
     else if (r.icon?.iconType) badges.push({ kind: 'icon', icon: r.icon.iconType, label });
   }
   return badges;
@@ -117,6 +118,7 @@ function parseTextMessage(r: LiveChatTextMessageRenderer): TextChatItem {
     message: parseText(r.message),
     chips,
     menuParams: r.contextMenuEndpoint?.liveChatItemContextMenuEndpoint?.params,
+    canModerate: !!r.inlineActionButtons?.length,
   };
 }
 
@@ -126,7 +128,13 @@ export function parseItem(item: ChatItemRenderer): ChatItem | null {
   if (item.liveChatTextMessageRenderer) return parseTextMessage(item.liveChatTextMessageRenderer);
   if (item.liveChatViewerEngagementMessageRenderer) {
     const r = item.liveChatViewerEngagementMessageRenderer;
-    return { kind: 'engagement', id: r.id, message: parseText(r.message) };
+    const message = parseText(r.message);
+    // "Learn more" arrives as a separate button; YouTube shows it inline after the text.
+    const button = r.actionButton?.buttonRenderer;
+    const label = textOf(button?.text);
+    const href = endpointUrl(button?.navigationEndpoint);
+    if (label && href) message.push({ type: 'text', text: ' ' }, { type: 'text', text: label, href });
+    return { kind: 'engagement', id: r.id, message };
   }
   // Superchats, memberships, stickers, etc. are not handled yet.
   if (import.meta.env.DEV) {

@@ -27,6 +27,13 @@ export interface Author {
   isVerified: boolean;
 }
 
+export interface DeletedState {
+  /** E.g. "Message deleted by @mod." or "[message retracted]". */
+  text: string;
+  /** Moderators only: label of the toggle that reveals the original, e.g. "View deleted message". */
+  showOriginalLabel?: string;
+}
+
 export interface TextChatItem {
   kind: 'text';
   id: string;
@@ -35,8 +42,10 @@ export interface TextChatItem {
   message: Segment[];
   chips: Chip[];
   menuParams?: string;
-  /** Set when a moderator deleted/retracted the message, e.g. "[message retracted]". */
-  deleted?: Segment[];
+  /** The viewer can moderate this message: clicking anywhere on it opens the menu, like YouTube. */
+  canModerate: boolean;
+  /** Set when the message was deleted by a moderator or retracted by its author. */
+  deleted?: DeletedState;
 }
 
 export interface EngagementChatItem {

@@ -14,6 +14,8 @@
   --bytc-owner-bg: var(--yt-live-chat-author-chip-owner-background-color, #fbc02d);
   --bytc-owner-fg: var(--yt-live-chat-author-chip-owner-text-color, #000);
   --bytc-deleted: var(--yt-live-chat-deleted-message-color, rgba(0, 0, 0, 0.5));
+  --bytc-deleted-bar: var(--yt-live-chat-deleted-message-bar-color, var(--bytc-deleted));
+  --bytc-verified: var(--bytc-text-2);
   --bytc-mention-bg: var(--yt-live-chat-mention-background-color, #ffd7ca);
   --bytc-mention-fg: var(--yt-live-chat-mention-text-color, #0f0f0f);
   --bytc-vem-bg: var(--yt-live-chat-vem-background-color, rgba(0, 0, 0, 0.05));
@@ -25,6 +27,7 @@
   --bytc-avatar-placeholder: rgba(0, 0, 0, 0.1);
   --bytc-menu-bg: #fff;
   --bytc-menu-hover: rgba(0, 0, 0, 0.1);
+  --bytc-row-hover: rgba(0, 0, 0, 0.05);
   --bytc-menu-shadow: 0 4px 32px rgba(0, 0, 0, 0.1);
   --bytc-divider: rgba(0, 0, 0, 0.1);
   --bytc-raised-bg: #fff;
@@ -33,12 +36,22 @@
   --bytc-scrollbar: rgba(0, 0, 0, 0.3);
 }
 
+/*
+ * Compare mode: `data-native` on the host shows YouTube's own list instead of ours (see index.ts).
+ * This has to live in the shadow root: its `:host { all: initial !important }` beats any
+ * `!important` rule from the page, so outside CSS can't hide the host.
+ */
+:host([data-native]) {
+  display: none !important;
+}
+
 /* Mirrors the `dark` attribute YouTube sets on <html> in the live_chat frame (see index.ts). */
 :host([dark]) {
   --bytc-link: #3ea6ff;
   --bytc-avatar-placeholder: rgba(255, 255, 255, 0.1);
   --bytc-menu-bg: #282828;
   --bytc-menu-hover: rgba(255, 255, 255, 0.1);
+  --bytc-row-hover: rgba(255, 255, 255, 0.1);
   --bytc-menu-shadow: 0 4px 32px rgba(0, 0, 0, 0.4);
   --bytc-divider: rgba(255, 255, 255, 0.2);
   --bytc-raised-bg: #282828;

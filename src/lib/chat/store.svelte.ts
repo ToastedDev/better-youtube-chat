@@ -1,7 +1,7 @@
 import type { ChatPayload } from '../protocol';
-import type { ChatAction } from '../youtube/types';
-import type { ChatItem } from './model';
-import { parseItem, parseText } from './parse';
+import type { ChatAction, FormattedText } from '../youtube/types';
+import type { ChatItem, DeletedState } from './model';
+import { parseItem, textOf } from './parse';
 
 /** Items kept while following the bottom of the chat. */
 const MAX_ITEMS = 400;
@@ -61,15 +61,16 @@ function applyAction(items: ChatItem[], action: ChatAction): void {
     return;
   }
   if (action.markChatItemAsDeletedAction) {
-    const { targetItemId, deletedStateMessage } = action.markChatItemAsDeletedAction;
+    const { targetItemId, deletedStateMessage, showOriginalContentMessage } = action.markChatItemAsDeletedAction;
     const index = items.findIndex((i) => i.id === targetItemId);
     const item = items[index];
-    if (item?.kind === 'text') items[index] = { ...item, deleted: deletedMessage(deletedStateMessage) };
+    if (item?.kind === 'text') items[index] = { ...item, deleted: deletedState(deletedStateMessage, showOriginalContentMessage) };
     return;
   }
   if (action.markChatItemsByAuthorAsDeletedAction) {
-    const { externalChannelId, deletedStateMessage } = action.markChatItemsByAuthorAsDeletedAction;
-    const deleted = deletedMessage(deletedStateMessage);
+    const { externalChannelId, deletedStateMessage, showOriginalContentMessage } =
+      action.markChatItemsByAuthorAsDeletedAction;
+    const deleted = deletedState(deletedStateMessage, showOriginalContentMessage);
     for (let i = 0; i < items.length; i++) {
       const item = items[i]!;
       if (item.kind === 'text' && item.author.channelId === externalChannelId) items[i] = { ...item, deleted };
@@ -78,7 +79,7 @@ function applyAction(items: ChatItem[], action: ChatAction): void {
   // Banners, tickers, polls, etc. are rendered by YouTube's native UI, which we keep.
 }
 
-function deletedMessage(text: Parameters<typeof parseText>[0]) {
-  const segments = parseText(text);
-  return segments.length ? segments : parseText({ simpleText: '[message deleted]' });
+function deletedState(text?: FormattedText, showOriginal?: FormattedText): DeletedState {
+  // YouTube renders this as plain text (the bold moderator name isn't bold or highlighted).
+  return { text: textOf(text) || '[message deleted]', showOriginalLabel: textOf(showOriginal) || undefined };
 }
