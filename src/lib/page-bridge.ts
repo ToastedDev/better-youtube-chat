@@ -12,12 +12,6 @@ const LIVE_CHAT_PATH = '/youtubei/v1/live_chat/get_live_chat';
 /** Moderation calls answer with the resulting chat actions; apply them without waiting for the next poll. */
 const ACTION_RESPONSE_PATHS = new Set(['/youtubei/v1/live_chat/moderate', '/youtubei/v1/live_chat/live_chat_action']);
 
-/** Native menu item element tags. Running an item through YouTube's own element reuses its
- *  confirm dialogs, report forms and moderation flows. */
-const MENU_ITEM_TAGS: Record<string, string> = {
-  menuServiceItemRenderer: 'ytd-menu-service-item-renderer',
-  menuNavigationItemRenderer: 'ytd-menu-navigation-item-renderer',
-};
 
 type AnyRecord = Record<string, any>;
 
@@ -209,28 +203,80 @@ async function fetchContextMenu(fetchImpl: typeof fetch, params: string): Promis
 
 let menuItemHost: HTMLElement | undefined;
 
-async function runNativeMenuItem(item: RawMenuItem): Promise<void> {
-  const [kind, data] = Object.entries(item)[0] ?? [];
-  const tag = kind && MENU_ITEM_TAGS[kind];
-  if (!tag) throw new Error(`Unsupported menu item: ${kind}`);
-
+/** A hidden container inside yt-live-chat-app, so events we fire (popups, service requests) reach the app. */
+function getMenuItemHost(): HTMLElement {
   const app = document.querySelector('yt-live-chat-app');
   if (!app) throw new Error('yt-live-chat-app not found');
   if (!menuItemHost?.isConnected) {
     menuItemHost = document.createElement('div');
     menuItemHost.hidden = true;
     menuItemHost.dataset.betterYtChat = 'menu-item-host';
-    // Inside yt-live-chat-app so the events the item fires (popups, service requests) reach the app.
     app.appendChild(menuItemHost);
   }
+  return menuItemHost;
+}
 
-  const el = document.createElement(tag) as HTMLElement & AnyRecord;
-  menuItemHost.replaceChildren(el);
+/**
+ * Runs a native context menu item through YouTube's own code, which reuses its confirm dialogs,
+ * report forms and moderation flows.
+ */
+async function runNativeMenuItem(item: RawMenuItem): Promise<void> {
+  const [kind, data] = Object.entries(item)[0] ?? [];
+  if (!kind || !data) throw new Error('Empty menu item');
+  if (kind === 'menuServiceItemRenderer') return tapServiceItem(data);
+  if (kind === 'menuNavigationItemRenderer') return runNavigationEndpoint(data);
+  throw new Error(`Unsupported menu item: ${kind}`);
+}
+
+/** `ytd-menu-service-item-renderer.onTap` resolves the item's endpoint with YouTube's command resolver. */
+async function tapServiceItem(data: AnyRecord): Promise<void> {
+  const el = document.createElement('ytd-menu-service-item-renderer') as HTMLElement & AnyRecord;
+  getMenuItemHost().replaceChildren(el);
   el.data = data;
   await new Promise((resolve) => setTimeout(resolve, 0));
   const controller = el.polymerController ?? el;
-  if (typeof controller.onTap !== 'function') throw new Error(`${tag} has no onTap handler`);
+  if (typeof controller.onTap !== 'function') throw new Error('ytd-menu-service-item-renderer has no onTap handler');
   controller.onTap();
+}
+
+/**
+ * `ytd-menu-navigation-item-renderer` has no `onTap`; it reacts to real clicks on a link it only
+ * renders for some endpoints. Handle the endpoint types it carries directly instead.
+ */
+async function runNavigationEndpoint(data: AnyRecord): Promise<void> {
+  const endpoint: AnyRecord = data.navigationEndpoint ?? {};
+
+  // e.g. Block: open YouTube's own confirm dialog; its confirm button sends the request.
+  const dialog = endpoint.confirmDialogEndpoint?.content;
+  if (dialog) {
+    const source = getMenuItemHost();
+    source.dispatchEvent(
+      new CustomEvent('yt-action', {
+        bubbles: true,
+        composed: true,
+        detail: {
+          actionName: 'yt-open-popup-action',
+          args: [{ openPopupAction: { popup: dialog, popupType: 'DIALOG' } }, source],
+          optionalAction: false,
+          returnValue: [],
+        },
+      }),
+    );
+    return;
+  }
+
+  const url = endpoint.urlEndpoint?.url ?? endpoint.commandMetadata?.webCommandMetadata?.url;
+  if (url) {
+    if (endpoint.urlEndpoint?.target === 'TARGET_NEW_WINDOW') {
+      window.open(new URL(url, location.origin).href, '_blank', 'noopener');
+    } else {
+      navigateTop(url, endpoint.browseEndpoint?.browseId);
+    }
+    return;
+  }
+
+  // Anything else: let YouTube's command resolver handle it as a service endpoint.
+  return tapServiceItem({ ...data, serviceEndpoint: endpoint });
 }
 
 function navigateTop(url: string, browseId?: string): void {
