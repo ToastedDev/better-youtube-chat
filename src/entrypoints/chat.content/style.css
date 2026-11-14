@@ -1,0 +1,53 @@
+/*
+ * Shadow root styles. Colors come from YouTube's own live chat CSS variables, which inherit into
+ * the shadow root, so light/dark theme switches follow YouTube automatically.
+ */
+:host {
+  display: block !important;
+  position: absolute !important;
+  inset: 0 !important;
+
+  --bytc-text: var(--yt-live-chat-primary-text-color, #0f0f0f);
+  --bytc-text-2: var(--yt-live-chat-secondary-text-color, #606060);
+  --bytc-moderator: var(--yt-live-chat-moderator-color, #065fd4);
+  --bytc-member: var(--yt-live-chat-sponsor-color, #107516);
+  --bytc-owner-bg: var(--yt-live-chat-author-chip-owner-background-color, #fbc02d);
+  --bytc-owner-fg: var(--yt-live-chat-author-chip-owner-text-color, #000);
+  --bytc-deleted: var(--yt-live-chat-deleted-message-color, rgba(0, 0, 0, 0.5));
+  --bytc-mention-bg: var(--yt-live-chat-mention-background-color, #ffd7ca);
+  --bytc-mention-fg: var(--yt-live-chat-mention-text-color, #0f0f0f);
+  --bytc-vem-bg: var(--yt-live-chat-vem-background-color, rgba(0, 0, 0, 0.05));
+  --bytc-icon: var(--yt-live-chat-icon-button-color, #606060);
+  --bytc-chip-bg: var(--yt-live-chat-secondary-background-color, rgba(0, 0, 0, 0.1));
+
+  /* Not exposed as live chat variables; mirrors YouTube's light palette. */
+  --bytc-link: #065fd4;
+  --bytc-avatar-placeholder: rgba(0, 0, 0, 0.1);
+  --bytc-menu-bg: #fff;
+  --bytc-menu-hover: rgba(0, 0, 0, 0.1);
+  --bytc-menu-shadow: 0 4px 32px rgba(0, 0, 0, 0.1);
+  --bytc-divider: rgba(0, 0, 0, 0.1);
+  --bytc-raised-bg: #fff;
+  --bytc-raised-hover: #f2f2f2;
+  --bytc-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+  --bytc-scrollbar: rgba(0, 0, 0, 0.3);
+}
+
+/* Mirrors the `dark` attribute YouTube sets on <html> in the live_chat frame (see index.ts). */
+:host([dark]) {
+  --bytc-link: #3ea6ff;
+  --bytc-avatar-placeholder: rgba(255, 255, 255, 0.1);
+  --bytc-menu-bg: #282828;
+  --bytc-menu-hover: rgba(255, 255, 255, 0.1);
+  --bytc-menu-shadow: 0 4px 32px rgba(0, 0, 0, 0.4);
+  --bytc-divider: rgba(255, 255, 255, 0.2);
+  --bytc-raised-bg: #282828;
+  --bytc-raised-hover: #3f3f3f;
+  --bytc-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+  --bytc-scrollbar: rgba(255, 255, 255, 0.3);
+}
+
+/* WXT's container div inside the shadow root. */
+:host > div {
+  height: 100%;
+}
