@@ -130,7 +130,7 @@
 
   {#if native === 'loading'}
     <div class="divider"></div>
-    <div class="loading" aria-label="Loading"><span></span></div>
+    <div class="loading" role="status" aria-label="Loading more actions"><span class="spinner"></span></div>
   {:else if Array.isArray(native) && native.length}
     <div class="divider"></div>
     {#each native as entry, i (i)}
@@ -192,25 +192,30 @@
     margin: 8px 0;
     background: var(--bytc-divider);
   }
+  /* Same height as a menu entry, so the menu doesn't jump much when YouTube's items arrive. */
   .loading {
     display: flex;
     align-items: center;
+    justify-content: center;
     height: 36px;
-    padding: 0 16px;
   }
-  .loading span {
-    width: 70%;
-    height: 12px;
-    border-radius: 6px;
-    background: var(--bytc-menu-hover);
-    animation: pulse 1s ease-in-out infinite alternate;
+  .spinner {
+    box-sizing: border-box;
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--bytc-divider);
+    border-top-color: var(--bytc-text-2);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
   }
-  @keyframes pulse {
-    from {
-      opacity: 0.4;
-    }
+  @keyframes spin {
     to {
-      opacity: 1;
+      transform: rotate(360deg);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .spinner {
+      animation-duration: 2.4s;
     }
   }
 </style>
