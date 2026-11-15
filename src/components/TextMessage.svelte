@@ -60,7 +60,11 @@
       class:member={author.isMember}
       class:verified={author.isVerified}
       onclick={menu.author}>{author.name}</button
-    >{#each badges as badge, i (i)}<span class="badge" class:moderator={badge.kind === 'icon' && badge.icon === 'MODERATOR'} title={badge.label}
+    >{#each badges as badge, i (i)}<span
+          class="badge"
+          class:moderator={badge.kind === 'icon' && badge.icon === 'MODERATOR'}
+          class:verified={badge.kind === 'icon' && badge.icon === 'VERIFIED'}
+          title={badge.label}
         >{#if badge.kind === 'image'}<img src={badge.src} alt={badge.label} />{:else}<Icon name={badge.icon} size={16} />{/if}</span
       >{/each}{#each item.chips as chip, i (i)}<Chip {chip} />{/each}<!-- No whitespace before the text: spacing comes from the margins, like YouTube. -->{#if item.deleted && !revealed}<span
         class="text">{item.deleted.text}</span
@@ -162,16 +166,24 @@
   .author:has(+ .badge) {
     margin-right: 0;
   }
+  /* Measured on YouTube: 2px before each badge, the verified check overlaps the next one by 2px,
+     and 8px between the last badge and the message. */
   .badge {
     display: inline-flex;
-    margin: 0 4px 0 2px;
+    margin: 0 0 0 2px;
     vertical-align: middle;
     position: relative;
     top: -1px;
-    color: var(--bytc-text-2);
+    color: var(--bytc-text);
   }
-  .badge:last-of-type {
+  .badge.verified {
+    margin-right: -2px;
+  }
+  .badge:not(:has(+ .badge)) {
     margin-right: 8px;
+  }
+  .badge.verified:not(:has(+ .badge)) {
+    margin-right: 6px;
   }
   .badge.moderator {
     color: var(--bytc-moderator);

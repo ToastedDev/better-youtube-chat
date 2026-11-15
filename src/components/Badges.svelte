@@ -8,7 +8,11 @@
   const visible = $derived(badges.filter((b) => b.kind === 'image' || b.icon in ICONS));
 </script>
 
-{#each visible as badge, i (i)}<span class="badge" class:moderator={badge.kind === 'icon' && badge.icon === 'MODERATOR'} title={badge.label}
+{#each visible as badge, i (i)}<span
+    class="badge"
+    class:moderator={badge.kind === 'icon' && badge.icon === 'MODERATOR'}
+    class:verified={badge.kind === 'icon' && badge.icon === 'VERIFIED'}
+    title={badge.label}
     >{#if badge.kind === 'image'}<img src={badge.src} alt={badge.label} />{:else}<Icon name={badge.icon} size={16} />{/if}</span
   >{/each}
 
@@ -19,6 +23,10 @@
     vertical-align: middle;
     position: relative;
     top: -1px;
+  }
+  /* YouTube's verified check overlaps the next badge by 2px. */
+  .badge.verified {
+    margin-right: -2px;
   }
   .badge img {
     width: 16px;
