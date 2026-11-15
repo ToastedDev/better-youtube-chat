@@ -158,7 +158,13 @@ function parseTextMessage(r: LiveChatTextMessageRenderer): TextChatItem {
       command: vm.onTap?.innertubeCommand,
     });
   }
-  return { kind: 'text', ...authored(r), message: parseText(r.message), chips };
+  return {
+    kind: 'text',
+    ...authored(r),
+    timestampText: textOf(r.timestampText) || undefined,
+    message: parseText(r.message),
+    chips,
+  };
 }
 
 function parsePaidMessage(r: LiveChatPaidMessageRenderer): PaidChatItem {

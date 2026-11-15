@@ -68,6 +68,8 @@ export interface ButtonViewModel {
 export interface LiveChatTextMessageRenderer extends AuthorFields {
   id: string;
   timestampUsec: string;
+  /** Chat replay: the video time it was sent at, e.g. "1:23:45" ("-5:35" before the stream began). */
+  timestampText?: FormattedText;
   message?: FormattedText;
   beforeContentButtons?: { buttonViewModel?: ButtonViewModel }[];
 }
@@ -248,6 +250,8 @@ export interface ChatAction {
   };
   removeChatItemByAuthorAction?: { externalChannelId: string };
   replaceChatItemAction?: { targetItemId: string; replacementItem: ChatItemRenderer };
+  /** Chat replay of a past stream: actions to run when the video reaches the offset. */
+  replayChatItemAction?: { actions?: ChatAction[]; videoOffsetTimeMsec?: string };
   [action: string]: unknown;
 }
 

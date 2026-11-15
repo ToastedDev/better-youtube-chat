@@ -10,6 +10,8 @@ const CHANNEL_KEY = '__betterYtChat';
 export interface ChatPayload {
   /** True for a full (re)load, e.g. first load or switching Top chat / Live chat. */
   reset: boolean;
+  /** Chat replay: YouTube refetched around a new video time and shows only this window now. */
+  seek?: boolean;
   actions: ChatAction[];
   /** Entity store updates that came with the actions (like / reply counts). */
   entities?: EntityMutation[];
@@ -29,6 +31,8 @@ export type RpcMethod = keyof RpcMap;
 export type PageMessage =
   | { type: 'ready' }
   | { type: 'chat'; payload: ChatPayload }
+  /** Chat replay: the video's current time, which the watch page posts into the chat frame. */
+  | { type: 'progress'; seconds: number }
   | { type: 'rpc-result'; id: number; ok: true; result: unknown }
   | { type: 'rpc-result'; id: number; ok: false; error: string };
 

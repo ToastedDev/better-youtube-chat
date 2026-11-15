@@ -43,6 +43,8 @@ export interface DeletedState {
 interface AuthoredBase {
   id: string;
   timestampUsec: string;
+  /** Chat replay: the video time it was sent at, shown instead of the clock time. */
+  timestampText?: string;
   author: Author;
   /** The text "Copy message" copies; may be empty (e.g. a new member announcement). */
   message: Segment[];

@@ -52,7 +52,10 @@ export default defineContentScript({
 
   async main(ctx) {
     const store = new ChatStore();
-    const bridge = new PageBridge((payload) => store.apply(payload));
+    const bridge = new PageBridge(
+      (payload) => store.apply(payload),
+      (seconds) => store.setVideoTime(seconds),
+    );
     const theme = new NativeThemeSampler();
 
     const style = document.createElement('style');

@@ -11,7 +11,7 @@ export class PageBridge {
   #nextId = 1;
   #pending = new Map<number, Pending>();
 
-  constructor(onChat: (payload: ChatPayload) => void) {
+  constructor(onChat: (payload: ChatPayload) => void, onProgress: (seconds: number) => void) {
     listen('page', (msg) => {
       switch (msg.type) {
         case 'ready':
@@ -19,6 +19,9 @@ export class PageBridge {
           break;
         case 'chat':
           onChat(msg.payload);
+          break;
+        case 'progress':
+          onProgress(msg.seconds);
           break;
         case 'rpc-result': {
           const pending = this.#pending.get(msg.id);

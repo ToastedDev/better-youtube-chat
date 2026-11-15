@@ -20,7 +20,8 @@
 
   const author = $derived(item.author);
   const time = $derived(
-    new Date(Number(item.timestampUsec) / 1000).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }),
+    item.timestampText ??
+      new Date(Number(item.timestampUsec) / 1000).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }),
   );
   /** Moderators can reveal a deleted message's original text, like YouTube's "View deleted message". */
   let revealed = $state(false);

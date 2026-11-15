@@ -14,6 +14,8 @@ with a custom one. YouTube's own header, ticker, pinned message and input box st
   fundraiser donations. YouTube's ticker, banners and gift animations stay native.
 - Super Chat Like / Reply buttons with live counts. Reply (and the "@name" chip on replies) opens
   YouTube's own reply thread dialog.
+- Chat replay on past streams, in sync with the video (including seeks); timestamps show the video
+  time.
 
 ## Develop
 

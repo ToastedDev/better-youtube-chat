@@ -8,7 +8,8 @@
 import { listen, post, type ChatPayload, type RpcMap, type RpcMethod } from './protocol';
 import type { EntityMutation, RawMenuItem } from './youtube/types';
 
-const LIVE_CHAT_PATH = '/youtubei/v1/live_chat/get_live_chat';
+/** Live chat polls, and the chunks of a past stream's chat replay (same response shape). */
+const LIVE_CHAT_PATHS = new Set(['/youtubei/v1/live_chat/get_live_chat', '/youtubei/v1/live_chat/get_live_chat_replay']);
 /**
  * Moderation calls and Super Chat likes answer with the resulting chat actions or entity updates;
  * apply them without waiting for the next poll.
@@ -49,12 +50,28 @@ export function installPageBridge(): void {
     if (devLog.length > 300) devLog.shift();
   }
 
-  function handleResponse(json: AnyRecord) {
-    logResponse(json);
+  // Chat replay: each response offers a token for the next chunk and one for seeking
+  // (`playerSeekContinuationData`). A request with a seek token is YouTube refetching around a new
+  // video time, and it shows only that window afterwards; flag those responses so we do the same.
+  const seekTokens = new Set<string>();
+  function rememberSeekTokens(lcc: AnyRecord) {
+    for (const c of lcc?.continuations ?? []) {
+      const token = c?.playerSeekContinuationData?.continuation;
+      if (typeof token === 'string') seekTokens.add(token);
+    }
+    if (seekTokens.size > 200) seekTokens.delete(seekTokens.values().next().value!);
+  }
+
+  function handleResponse(json: AnyRecord, request?: AnyRecord) {
+    logResponse(devLog ? { ...json, request } : json);
     const lcc = json?.continuationContents?.liveChatContinuation;
     if (!lcc) return;
+    const token = request?.continuation;
+    const seek = typeof token === 'string' && seekTokens.has(token);
+    rememberSeekTokens(lcc);
     emit({
       reset: 'itemList' in lcc,
+      seek: seek || undefined,
       actions: lcc.actions ?? [],
       entities: entityMutations(json),
       viewerName: typeof lcc.viewerName === 'string' ? lcc.viewerName : undefined,
@@ -75,6 +92,7 @@ export function installPageBridge(): void {
         // (`/live_chat?is_popout=1&v=…`) uses `contents.liveChatRenderer`. Same shape inside.
         const data = value as AnyRecord;
         const lcc = data?.continuationContents?.liveChatContinuation ?? data?.contents?.liveChatRenderer;
+        rememberSeekTokens(lcc);
         if (lcc?.actions?.length) {
           const actions = structuredClone(lcc.actions);
           const entities = structuredClone(entityMutations(data));
@@ -95,21 +113,29 @@ export function installPageBridge(): void {
   }
 
   window.fetch = function (this: unknown, ...args: Parameters<typeof fetch>) {
+    let path = '';
+    let request: Promise<AnyRecord | undefined> | undefined;
+    try {
+      path = requestPath(args[0]);
+      // Read the body before fetch consumes it: the continuation token says whether it's a seek.
+      if (LIVE_CHAT_PATHS.has(path)) request = requestBody(args);
+    } catch {
+      // Never break YouTube's own requests.
+    }
     const promise = originalFetch.apply(this, args);
     try {
-      const path = requestPath(args[0]);
       const handler =
-        path === LIVE_CHAT_PATH ? handleResponse : ACTION_RESPONSE_PATHS.has(path) ? handleActionResponse : null;
+        LIVE_CHAT_PATHS.has(path) ? handleResponse : ACTION_RESPONSE_PATHS.has(path) ? handleActionResponse : null;
       if (handler) {
-        promise
-          .then((res) => res.clone().json())
-          .then((json) => {
+        Promise.all([promise.then((res) => res.clone().json()), request])
+          .then(([json, body]) => {
             try {
-              handler(json);
+              handler(json, body);
             } catch (err) {
               console.error('[better-yt-chat] failed to handle chat response', err);
             }
-          }, () => {});
+          })
+          .catch(() => {});
       }
     } catch {
       // Never break YouTube's own requests.
@@ -133,12 +159,25 @@ export function installPageBridge(): void {
     },
   };
 
+  // Chat replay: the watch page posts `{ 'yt-player-video-progress': seconds }` into this frame a
+  // few times a second (and once on load, even when paused). Listening here, from document_start,
+  // means the UI gets the time even if it loads after that first message.
+  let lastProgress: number | undefined;
+  window.addEventListener('message', (event) => {
+    if (event.origin !== location.origin) return;
+    const seconds = (event.data as AnyRecord | null)?.['yt-player-video-progress'];
+    if (typeof seconds !== 'number' || seconds === lastProgress) return;
+    lastProgress = seconds;
+    if (connected) post('page', { type: 'progress', seconds });
+  });
+
   listen('ext', async (msg) => {
     if (msg.type === 'hello') {
       if (connected) return;
       connected = true;
       for (const payload of backlog) post('page', { type: 'chat', payload });
       backlog = [];
+      if (lastProgress !== undefined) post('page', { type: 'progress', seconds: lastProgress });
       return;
     }
     if (msg.type === 'rpc') {
@@ -158,6 +197,32 @@ export function installPageBridge(): void {
 function entityMutations(json: AnyRecord | undefined): EntityMutation[] | undefined {
   const mutations = json?.frameworkUpdates?.entityBatchUpdate?.mutations;
   return Array.isArray(mutations) && mutations.length ? mutations : undefined;
+}
+
+/** The JSON body of an innertube request, whether it's passed as a `Request` or as `init.body`. */
+async function requestBody([input, init]: Parameters<typeof fetch>): Promise<AnyRecord | undefined> {
+  try {
+    const body = init?.body;
+    let bytes: ArrayBuffer | undefined;
+    if (typeof body === 'string') return JSON.parse(body);
+    // Blobs, buffers etc. can be read again; a stream can't, so leave those alone.
+    if (body != null && !(body instanceof ReadableStream)) bytes = await new Response(body).arrayBuffer();
+    else if (input instanceof Request) bytes = await input.clone().arrayBuffer();
+    if (!bytes?.byteLength) return undefined;
+    // YouTube gzips some request bodies (e.g. chat replay).
+    const head = new Uint8Array(bytes, 0, 2);
+    const stream =
+      head[0] === 0x1f && head[1] === 0x8b
+        ? new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'))
+        : new Blob([bytes]).stream();
+    return JSON.parse(await new Response(stream).text());
+  } catch (err) {
+    if (import.meta.env.DEV) {
+      const kind = input instanceof Request ? 'Request' : typeof input;
+      console.debug('[better-yt-chat] could not read request body', kind, init?.body, err);
+    }
+    return undefined;
+  }
 }
 
 function requestPath(input: RequestInfo | URL): string {

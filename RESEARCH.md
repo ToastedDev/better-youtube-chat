@@ -205,7 +205,31 @@ Keys appear both URL-encoded (`…%3D`) and not, so compare them decoded.
   the same way opens YouTube's reply thread dialog, where replies are read and posted.
 - YouTube's own Like / Reply icons are blank (`imageName: ""`); we draw thumb-up / bubble icons.
 
+### Chat replay (past streams)
+The chat frame is `/live_chat_replay?continuation=…` (our `live_chat*` match covers it). Verified on
+a 4h40m VOD:
+- `ytInitialData.continuationContents.liveChatContinuation` has `isReplay` and a first chunk. Every
+  action is a `replayChatItemAction { actions[], videoOffsetTimeMsec }`.
+- More chunks come from `get_live_chat_replay` (same response shape), about every 5s of playback.
+  Chunks overlap, so dedupe by item id.
+- The watch page posts `{ "yt-player-video-progress": seconds }` into the chat frame about 4 times a
+  second, and once on load even when paused. YouTube shows the actions whose offset is at or before
+  that time.
+- Each response offers two continuations, `liveChatReplayContinuationData` (next chunk) and
+  `playerSeekContinuationData`. After a seek YouTube requests with the seek token and gets a window
+  around the new time (about 70s before to 100s after; it can also start further back with a Super
+  Chat that's still in the ticker). YouTube then shows only that window up to the current time. The
+  request is a `Request` with a **gzipped** JSON body (`DecompressionStream('gzip')`), and comparing
+  its `continuation` with the seek tokens seen so far is how the bridge flags seek responses.
+- Messages carry `timestampText` (video time, e.g. "1:58:17", negative before the stream began).
+
+Implementation: `ReplayTimeline` (`src/lib/chat/replay.ts`) keeps the actions sorted by offset and
+pruned to a window around the current time. The store applies the newly reached actions as the
+video plays, and rebuilds the list from the timeline on a seek, a seek response, or a chunk landing
+before the current time. Compared with YouTube's own list after playing, seeking forward, seeking
+back into loaded chat and seeking far back: same items, same order.
+
 ## 7. Next steps
 - Verify stickers, milestones and gifted-membership announcements on a live stream.
-- Replays (`get_live_chat_replay`): actions must be scheduled by video time (`videoOffsetTimeMsec`).
+- Chat replay in a popout (no video progress messages there; untested).
 - Settings (timestamps, font size, menu item toggles), keyboard shortcuts, and virtualization if needed.
