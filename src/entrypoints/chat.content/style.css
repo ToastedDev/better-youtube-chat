@@ -51,6 +51,12 @@
   display: none !important;
 }
 
+/* Until our list has its first messages, YouTube's stays visible underneath (see index.ts). */
+:host(:not([data-ready])) {
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
 /* Mirrors the `dark` attribute YouTube sets on <html> in the live_chat frame (see index.ts). */
 :host([dark]) {
   --bytc-link: #3ea6ff;

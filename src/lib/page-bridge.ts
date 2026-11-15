@@ -359,8 +359,8 @@ function syncListToggle(): void {
   }
 }
 
-/** Our UI's shadow host, while it's mounted and not in compare mode (see chat.content/index.ts). */
-const UI_HOST = 'better-yt-chat:not([data-native])';
+/** Our UI's shadow host, while it's mounted, showing messages and chosen (see chat.content/index.ts). */
+const UI_HOST = 'better-yt-chat[data-ready]:not([data-native])';
 
 /**
  * Our menu for a click in a pinned message banner (`yt-live-chat-banner-renderer` whose

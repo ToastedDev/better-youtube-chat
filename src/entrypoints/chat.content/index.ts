@@ -1,4 +1,4 @@
-import { mount, unmount } from 'svelte';
+import { mount, tick, unmount } from 'svelte';
 import App from '@/components/App.svelte';
 import { PageBridge } from '@/lib/bridge';
 import { MenuState } from '@/lib/chat/menu-state.svelte';
@@ -12,12 +12,13 @@ const HOST_TAG = 'better-yt-chat';
 const ANCHOR = 'yt-live-chat-renderer #item-list';
 
 /**
- * Hide YouTube's message list only while ours is mounted and visible, so the native one comes back
- * if we fail, or when compare mode (`data-native` on the host) is on.
+ * Hide YouTube's message list only while ours is mounted, ready (`data-ready`: it has rendered the
+ * first messages) and chosen, so the native one shows until then, if we fail, or when the viewer
+ * picks it (`data-native` on the host).
  */
 const DOCUMENT_CSS = `
   #item-list:has(> ${HOST_TAG}) { position: relative; }
-  #item-list:has(> ${HOST_TAG}:not([data-native])) > yt-live-chat-item-list-renderer { display: none !important; }
+  #item-list:has(> ${HOST_TAG}[data-ready]:not([data-native])) > yt-live-chat-item-list-renderer { display: none !important; }
 `;
 
 /** Alt+Shift+N in the chat switches between our list and YouTube's, like the chat menu's switch. */
@@ -63,6 +64,16 @@ export default defineContentScript({
     // YouTube's list keeps rendering behind ours, so switching is instant both ways.
     let showNative = readNativeList();
     let shadowHost: HTMLElement | undefined;
+
+    // Our list stays hidden (and YouTube's shown) until it has rendered the first payload; mounting
+    // happens well before the page bridge hands the history over.
+    let ready = false;
+    const markReady = async () => {
+      if (ready) return;
+      await tick();
+      ready = true;
+      shadowHost?.toggleAttribute('data-ready', true);
+    };
     const setNative = (native: boolean) => {
       showNative = native;
       shadowHost?.toggleAttribute('data-native', native);
@@ -70,7 +81,10 @@ export default defineContentScript({
     };
 
     const bridge = new PageBridge({
-      onChat: (payload) => store.apply(payload),
+      onChat: (payload) => {
+        store.apply(payload);
+        void markReady();
+      },
       onProgress: (seconds) => store.setVideoTime(seconds),
       onNativeList: setNative,
       onMenu: ({ renderer, x, y, alignRight, flipY }) => {
@@ -95,6 +109,7 @@ export default defineContentScript({
       onMount: (container, _shadow, host) => {
         shadowHost = host;
         host.toggleAttribute('data-native', showNative);
+        host.toggleAttribute('data-ready', ready);
         const stopThemeSync = syncHostAttributes(host, () => theme.reset());
         theme.attach(host);
         const app = mount(App, { target: container, props: { store, bridge, menu } });
