@@ -19,6 +19,13 @@ const ANCHOR = 'yt-live-chat-renderer #item-list';
 const DOCUMENT_CSS = `
   #item-list:has(> ${HOST_TAG}) { position: relative; }
   #item-list:has(> ${HOST_TAG}[data-ready]:not([data-native])) > yt-live-chat-item-list-renderer { display: none !important; }
+
+  /*
+   * The input's @mention / :emoji suggestions: YouTube marks the selected one with its hover color,
+   * barely different from the panel (dark: #343434 on #3e3e3e), so it's easy to pick the wrong one.
+   */
+  yt-live-chat-text-input-field-suggestion[active] tp-yt-paper-item { background-color: rgba(0, 0, 0, 0.15) !important; }
+  html[dark] yt-live-chat-text-input-field-suggestion[active] tp-yt-paper-item { background-color: #1f1f1f !important; }
 `;
 
 /** Alt+Shift+N in the chat switches between our list and YouTube's, like the chat menu's switch. */

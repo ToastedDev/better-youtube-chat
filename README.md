@@ -13,6 +13,8 @@ with a custom one. YouTube's own header, ticker, pinned message and input box st
 - Handles deleted/retracted messages, the viewer leaderboard chips and mention highlighting.
 - Your own messages show up as soon as you send them, like YouTube.
 - The chat menu's **Timestamps** toggle for everyone, not only moderators.
+- @-suggestions in the chat input know who spoke in the last 5 minutes right away (YouTube only
+  learns them from new messages), and the selected suggestion is easy to see.
 - A **Better YouTube Chat** switch at the top of the chat menu (⋮ in the chat header) goes back to
   YouTube's own message list and remembers the choice. Alt+Shift+N does the same.
 - For moderators: messages AutoMod held for review, with YouTube's Show / Hide buttons.

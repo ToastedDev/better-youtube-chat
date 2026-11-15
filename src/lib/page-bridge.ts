@@ -103,6 +103,7 @@ export function installPageBridge(): void {
           const entities = structuredClone(entityMutations(data));
           logResponse({ initial: true, continuationContents: { liveChatContinuation: { actions } }, entities });
           emit({ reset: true, actions, entities, viewerName: lcc.viewerName });
+          seedParticipants(structuredClone(lcc.actions));
         }
       } catch (err) {
         console.error('[better-yt-chat] failed to read ytInitialData', err);
@@ -385,6 +386,30 @@ function insertNativeMention(handle: string): boolean {
   if (after > before) document.execCommand('insertText', false, ' ');
   // It silently skips names it doesn't accept as handles.
   return after > 0;
+}
+
+/**
+ * YouTube's @-suggestions come from yt-live-chat-participants-manager, which only learns authors
+ * from new messages (its `onChatMessage_` handles the `yt-live-chat-actions` of each poll), so
+ * nobody from the history shows until they speak again. Feed it the initial history the same way;
+ * it keeps the authors of the last 5 minutes. The element appears after ytInitialData, so wait.
+ */
+function seedParticipants(actions: unknown[]): void {
+  let tries = 0;
+  const attempt = () => {
+    const el = document.querySelector('yt-live-chat-participants-manager') as (HTMLElement & AnyRecord) | null;
+    const manager = el?.polymerController ?? el;
+    if (typeof manager?.onChatMessage_ === 'function') {
+      try {
+        manager.onChatMessage_(actions);
+      } catch (err) {
+        console.error('[better-yt-chat] failed to seed chat participants', err);
+      }
+      return;
+    }
+    if (++tries < 40) setTimeout(attempt, 250);
+  };
+  attempt();
 }
 
 /** Our UI's shadow host, while it's mounted, showing messages and chosen (see chat.content/index.ts). */

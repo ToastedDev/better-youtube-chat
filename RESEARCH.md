@@ -206,6 +206,17 @@ Keys appear both URL-encoded (`…%3D`) and not, so compare them decoded.
   the same way opens YouTube's reply thread dialog, where replies are read and posted.
 - YouTube's own Like / Reply icons are blank (`imageName: ""`); we draw thumb-up / bubble icons.
 
+### @-suggestions in the chat input
+The input's suggestion box (`tp-yt-iron-dropdown#dropdown` in yt-live-chat-text-input-field-renderer,
+shared with :emoji suggestions; rows are `yt-live-chat-text-input-field-suggestion[active]`) shows
+after three characters (`@ab`). Its names come from `yt-live-chat-participants-manager`:
+`onChatMessage_(actions)` handles each poll's `yt-live-chat-actions` and keeps text / paid message
+authors from the last 5 minutes (`PARTICIPANT_TIME_USEC_`), at most 100, matched by prefix
+(`getAuthorsFromPrefix`). It never sees the initial history, so the bridge feeds that in the same
+way. Picking a name types plain `@name ` text. The input's newer mention popup
+(`mentionParticipantsManager`, `insertMention` chips) has no data source on viewer pages.
+The selected row uses the hover color, barely different from the panel; our document CSS darkens it.
+
 ### Timestamps for everyone
 The chat header's ⋮ menu (`liveChatHeaderRenderer.overflowMenu.menuRenderer.items`, in
 `ytInitialData`) only has "Timestamps" for moderators. It's a
