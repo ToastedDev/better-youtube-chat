@@ -89,9 +89,12 @@
     close();
   }
 
-  function mention() {
-    insertMention(item.author.name);
+  async function mention() {
     close();
+    // A real mention chip through YouTube's input; plain "@name" text if it won't take the name.
+    const name = item.author.name;
+    const inserted = await bridge.call('insertMention', { handle: name }).catch(() => false);
+    if (!inserted) insertMention(name);
   }
 
   function copyMessage() {

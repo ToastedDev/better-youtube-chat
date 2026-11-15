@@ -197,6 +197,7 @@ export function installPageBridge(): void {
       navigateTop(url, browseId);
       return null;
     },
+    insertMention: async ({ handle }) => insertNativeMention(handle),
     runCommand: async ({ command }) => {
       // The resolver ignores chat dialogs (e.g. AutoMod's "held for review" explanation);
       // yt-live-chat-renderer shows them itself.
@@ -357,6 +358,33 @@ function syncListToggle(): void {
     const button = toggle.querySelector('tp-yt-paper-toggle-button') as AnyRecord | null;
     if (button) button.checked = on;
   }
+}
+
+/**
+ * A mention in YouTube's chat input is a `<b class="mention" data-mention-handle>` chip, sent as a
+ * mention segment, not plain "@name" text. yt-live-chat-text-input-field-renderer's
+ * `insertMention(handle, focus)` adds one at the end (or just focuses if it's already there).
+ */
+function insertNativeMention(handle: string): boolean {
+  const field = (document.querySelector('yt-live-chat-message-input-renderer yt-live-chat-text-input-field-renderer') ??
+    document.querySelector('yt-live-chat-text-input-field-renderer')) as (HTMLElement & AnyRecord) | null;
+  const input = field?.polymerController ?? field;
+  if (typeof input?.insertMention !== 'function' || typeof input.calculateLiveChatRichMessageInput !== 'function') {
+    return false;
+  }
+  const wanted = handle.toLowerCase();
+  const count = () =>
+    ((input.calculateLiveChatRichMessageInput()?.textSegments ?? []) as AnyRecord[]).filter(
+      (segment) => typeof segment?.handle === 'string' && segment.handle.toLowerCase() === wanted,
+    ).length;
+  const before = count();
+  input.insertMention(handle, true);
+  const after = count();
+  // The caret sits right after the new chip; add the space a typed mention would have, so the next
+  // word doesn't run into it. (If the handle was already there, YouTube only focuses the input.)
+  if (after > before) document.execCommand('insertText', false, ' ');
+  // It silently skips names it doesn't accept as handles.
+  return after > 0;
 }
 
 /** Our UI's shadow host, while it's mounted, showing messages and chosen (see chat.content/index.ts). */
