@@ -222,6 +222,11 @@ a 4h40m VOD:
   request is a `Request` with a **gzipped** JSON body (`DecompressionStream('gzip')`), and comparing
   its `continuation` with the seek tokens seen so far is how the bridge flags seek responses.
 - Messages carry `timestampText` (video time, e.g. "1:58:17", negative before the stream began).
+- **No popout for replays; YouTube doesn't support it.** The replay chat's ⋮ menu only has "Send
+  feedback". `/live_chat?is_popout=1&v=<id>` says "Chat is disabled for this live stream" once the
+  stream is over, and `/live_chat_replay?is_popout=1&v=<id>` says "Something went wrong". The replay
+  frame is opened with a `continuation` token from the watch page, not a video id, and outside the
+  watch page nothing posts the video time anyway.
 
 Implementation: `ReplayTimeline` (`src/lib/chat/replay.ts`) keeps the actions sorted by offset and
 pruned to a window around the current time. The store applies the newly reached actions as the
@@ -231,5 +236,4 @@ back into loaded chat and seeking far back: same items, same order.
 
 ## 7. Next steps
 - Verify stickers, milestones and gifted-membership announcements on a live stream.
-- Chat replay in a popout (no video progress messages there; untested).
 - Settings (timestamps, font size, menu item toggles), keyboard shortcuts, and virtualization if needed.
