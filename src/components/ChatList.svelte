@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { MenuTarget } from '@/lib/chat/model';
   import type { ChatStore } from '@/lib/chat/store.svelte';
+  import AutoModMessage from './AutoModMessage.svelte';
   import DonationMessage from './DonationMessage.svelte';
   import EngagementMessage from './EngagementMessage.svelte';
   import GiftMessage from './GiftMessage.svelte';
@@ -56,6 +57,8 @@
     {#each store.items as item (item.id)}
       {#if item.kind === 'text'}
         <TextMessage {item} viewerName={store.viewerName} menuOpen={item.id === menuItemId} {onmenu} />
+      {:else if item.kind === 'automod'}
+        <AutoModMessage {item} viewerName={store.viewerName} menuOpen={item.id === menuItemId} {onmenu} />
       {:else if item.kind === 'paid'}
         <PaidMessage {item} viewerName={store.viewerName} menuOpen={item.id === menuItemId} {onmenu} />
       {:else if item.kind === 'sticker'}

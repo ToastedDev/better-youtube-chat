@@ -5,6 +5,8 @@ import type {
   CreatorHeartViewModel,
   FormattedText,
   ImageSources,
+  InnertubeCommand,
+  LiveChatAutoModMessageRenderer,
   LiveChatMembershipItemRenderer,
   LiveChatPaidMessageRenderer,
   LiveChatPaidStickerRenderer,
@@ -17,10 +19,12 @@ import type {
 } from '../youtube/types';
 import type {
   Author,
+  AutoModChatItem,
   Badge,
   ChatItem,
   Chip,
   CreatorHeart,
+  DeletedState,
   GiftChatItem,
   LikeButton,
   MembershipChatItem,
@@ -164,6 +168,37 @@ function parseTextMessage(r: LiveChatTextMessageRenderer): TextChatItem {
     timestampText: textOf(r.timestampText) || undefined,
     message: parseText(r.message),
     chips,
+    deleted: r.deletedStateMessage ? deletedState(r.deletedStateMessage, r.showOriginalContentMessage) : undefined,
+  };
+}
+
+export function deletedState(text?: FormattedText, showOriginal?: FormattedText): DeletedState {
+  // YouTube renders this as plain text (the bold moderator name isn't bold or highlighted).
+  return { text: textOf(text) || '[message deleted]', showOriginalLabel: textOf(showOriginal) || undefined };
+}
+
+function parseAutoMod(r: LiveChatAutoModMessageRenderer): AutoModChatItem | null {
+  const inner = r.autoModeratedItem?.liveChatTextMessageRenderer;
+  if (!inner) return null;
+  const info = r.infoDialogButton?.buttonRenderer;
+  const actions: AutoModChatItem['actions'] = [];
+  for (const b of r.moderationButtons ?? []) {
+    const label = textOf(b.buttonRenderer?.text);
+    const command = b.buttonRenderer?.serviceEndpoint;
+    if (label && command) actions.push({ label, command });
+  }
+  const message = parseTextMessage(inner);
+  return {
+    ...message,
+    kind: 'automod',
+    id: r.id,
+    // The moderation quick actions sit on the outer renderer.
+    canModerate: message.canModerate || !!r.inlineActionButtons?.length,
+    header: parseText(r.headerText),
+    info: info?.navigationEndpoint
+      ? { label: info.tooltip ?? 'More information', command: info.navigationEndpoint as InnertubeCommand }
+      : undefined,
+    actions,
   };
 }
 
@@ -289,6 +324,7 @@ const unknownRenderers = new Set<string>();
 
 export function parseItem(item: ChatItemRenderer): ChatItem | null {
   if (item.liveChatTextMessageRenderer) return parseTextMessage(item.liveChatTextMessageRenderer);
+  if (item.liveChatAutoModMessageRenderer) return parseAutoMod(item.liveChatAutoModMessageRenderer);
   if (item.liveChatPaidMessageRenderer) return parsePaidMessage(item.liveChatPaidMessageRenderer);
   if (item.liveChatPaidStickerRenderer) return parsePaidSticker(item.liveChatPaidStickerRenderer);
   if (item.liveChatMembershipItemRenderer) return parseMembership(item.liveChatMembershipItemRenderer);

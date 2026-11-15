@@ -35,6 +35,9 @@
   --bytc-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
   --bytc-scrollbar: rgba(0, 0, 0, 0.3);
   --bytc-donation-bg: rgba(0, 0, 0, 0.05);
+  /* YouTube's tonal buttons (AutoMod's Show / Hide). */
+  --bytc-tonal-bg: rgba(0, 0, 0, 0.05);
+  --bytc-tonal-hover: rgba(0, 0, 0, 0.1);
   --bytc-card-shadow: rgba(0, 0, 0, 0.14) 0 2px 2px 0, rgba(0, 0, 0, 0.12) 0 1px 5px 0, rgba(0, 0, 0, 0.2) 0 3px 1px -2px;
 }
 
@@ -61,6 +64,8 @@
   --bytc-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
   --bytc-scrollbar: rgba(255, 255, 255, 0.3);
   --bytc-donation-bg: rgba(255, 255, 255, 0.1);
+  --bytc-tonal-bg: rgba(255, 255, 255, 0.1);
+  --bytc-tonal-hover: rgba(255, 255, 255, 0.2);
 }
 
 /* WXT's container div inside the shadow root. */

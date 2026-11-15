@@ -72,11 +72,34 @@ export interface LiveChatTextMessageRenderer extends AuthorFields {
   timestampText?: FormattedText;
   message?: FormattedText;
   beforeContentButtons?: { buttonViewModel?: ButtonViewModel }[];
+  /** Set when the message arrives already deleted or hidden (e.g. a held message a moderator hid). */
+  deletedStateMessage?: FormattedText;
+  showOriginalContentMessage?: FormattedText;
 }
 
 export interface ButtonRenderer {
   text?: FormattedText;
+  icon?: { iconType: string };
+  tooltip?: string;
   navigationEndpoint?: NavigationEndpoint;
+  serviceEndpoint?: InnertubeCommand;
+}
+
+/**
+ * Moderators only: a message AutoMod held for review, with Show / Hide buttons. Either choice
+ * replaces it (`replaceChatItemAction`) with the plain message, shown or marked hidden.
+ */
+export interface LiveChatAutoModMessageRenderer {
+  id: string;
+  timestampUsec: string;
+  autoModeratedItem?: ChatItemRenderer;
+  /** "This message is held for review." */
+  headerText?: FormattedText;
+  /** The warning icon; its `navigationEndpoint` opens YouTube's explanation dialog. */
+  infoDialogButton?: { buttonRenderer?: ButtonRenderer };
+  moderationButtons?: { buttonRenderer?: ButtonRenderer }[];
+  authorExternalChannelId?: string;
+  inlineActionButtons?: unknown[];
 }
 
 /** "Slow mode is on", "@channel turned on subscribers-only mode", and the matching "off" messages. */
@@ -239,6 +262,7 @@ export interface ChatItemRenderer {
   liveChatSponsorshipsGiftRedemptionAnnouncementRenderer?: LiveChatSponsorshipsGiftRedemptionAnnouncementRenderer;
   liveChatDonationAnnouncementRenderer?: LiveChatDonationAnnouncementRenderer;
   liveChatModeChangeMessageRenderer?: LiveChatModeChangeMessageRenderer;
+  liveChatAutoModMessageRenderer?: LiveChatAutoModMessageRenderer;
   liveChatPlaceholderItemRenderer?: { id: string };
   giftMessageViewModel?: GiftMessageViewModel;
   [renderer: string]: unknown;

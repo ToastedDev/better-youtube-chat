@@ -154,6 +154,17 @@ export function installPageBridge(): void {
       return null;
     },
     runCommand: async ({ command }) => {
+      // The resolver ignores chat dialogs (e.g. AutoMod's "held for review" explanation);
+      // yt-live-chat-renderer shows them itself.
+      if (command.liveChatDialogEndpoint) {
+        const chat = document.querySelector('yt-live-chat-renderer') as (HTMLElement & AnyRecord) | null;
+        const controller = chat?.polymerController ?? chat;
+        if (typeof controller?.handleLiveChatDialogEndpoint !== 'function') {
+          throw new Error('yt-live-chat-renderer has no handleLiveChatDialogEndpoint');
+        }
+        controller.handleLiveChatDialogEndpoint(command.liveChatDialogEndpoint);
+        return null;
+      }
       await tapServiceItem({ serviceEndpoint: command });
       return null;
     },

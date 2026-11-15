@@ -62,8 +62,9 @@ left native; its items carry the full renderer in `showItemEndpoint.showLiveChat
 
 Handled from YouTube's schema but not seen live yet: `liveChatPaidStickerRenderer`,
 `liveChatSponsorshipsGiftPurchaseAnnouncementRenderer`,
-`liveChatSponsorshipsGiftRedemptionAnnouncementRenderer`. Other known actions:
-`liveChatModeChangeMessageRenderer`,
+`liveChatSponsorshipsGiftRedemptionAnnouncementRenderer`. Also handled and verified:
+`liveChatModeChangeMessageRenderer`, `liveChatAutoModMessageRenderer` (see "AutoMod"). Other known
+actions:
 `markChatItemAsDeletedAction`, `markChatItemsByAuthorAsDeletedAction`, `removeChatItemByAuthorAction`,
 `replaceChatItemAction`, `removeBannerForLiveChatCommand`, `updateLiveChatPollAction`,
 `showLiveChatTooltipCommand`, `closeLiveChatActionPanelAction`. For replays, actions are wrapped in
@@ -204,6 +205,25 @@ Keys appear both URL-encoded (`…%3D`) and not, so compare them decoded.
 - Reply is a `showEngagementPanelEndpoint` (`PAreply_thread`, `PANEL_POPUP_TYPE_DIALOG`); running it
   the same way opens YouTube's reply thread dialog, where replies are read and posted.
 - YouTube's own Like / Reply icons are blank (`imageName: ""`); we draw thumb-up / bubble icons.
+
+### AutoMod (held for review)
+Moderators get `addChatItemAction.item.liveChatAutoModMessageRenderer` (verified on a stream where
+the viewer is a moderator):
+- `autoModeratedItem.liveChatTextMessageRenderer` is the held message. `headerText` is "This
+  message is held for review.". `moderationButtons[]` are Show / Hide `buttonRenderer`s with a
+  `moderateLiveChatEndpoint` `serviceEndpoint`. The outer renderer carries the
+  `inlineActionButtons`.
+- `infoDialogButton` (WARNING icon) has a `navigationEndpoint.liveChatDialogEndpoint`. YouTube's
+  command resolver ignores it; `yt-live-chat-renderer`'s `handleLiveChatDialogEndpoint(endpoint)`
+  opens the dialog.
+- Show / Hide: the `live_chat/moderate` response has a `replaceChatItemAction`, and the next
+  `get_live_chat` repeats it. Show replaces the item with the plain message. Hide replaces it with
+  a text message that has `deletedStateMessage` ("Message automatically held for review, hidden by
+  @mod.") and `showOriginalContentMessage` ("View deleted message"). Messages hidden earlier arrive
+  in that form in the initial history too.
+- Native look (light): a 4px bar on the left (the deleted-message bar color); header row 12px/18px
+  with a 40px round icon button; the message at 50% opacity, italic; 40px tonal buttons
+  (`rgba(0,0,0,.05)`, 20px radius, 14px/500) with an 8px gap, 64px from the left.
 
 ### Chat replay (past streams)
 The chat frame is `/live_chat_replay?continuation=…` (our `live_chat*` match covers it). Verified on

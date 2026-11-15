@@ -62,6 +62,18 @@ export interface TextChatItem extends AuthoredBase {
   system?: boolean;
 }
 
+/** Moderators only: a message AutoMod held for review. */
+export interface AutoModChatItem extends AuthoredBase {
+  kind: 'automod';
+  chips: Chip[];
+  /** "This message is held for review." */
+  header: Segment[];
+  /** The warning icon button, which opens YouTube's explanation dialog. */
+  info?: { label: string; command: InnertubeCommand };
+  /** Show / Hide. */
+  actions: { label: string; command: InnertubeCommand }[];
+}
+
 /** A Super Chat. Colors come from the payload (they depend on the amount tier, not the theme). */
 export interface PaidChatItem extends AuthoredBase {
   kind: 'paid';
@@ -170,7 +182,7 @@ export interface PlaceholderChatItem {
   id: string;
 }
 
-export type AuthoredChatItem = TextChatItem | PaidChatItem | StickerChatItem | MembershipChatItem;
+export type AuthoredChatItem = TextChatItem | AutoModChatItem | PaidChatItem | StickerChatItem | MembershipChatItem;
 export type ChatItem =
   | AuthoredChatItem
   | GiftChatItem

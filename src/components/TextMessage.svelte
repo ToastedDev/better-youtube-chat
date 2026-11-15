@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { TextChatItem } from '@/lib/chat/model';
+  import type { AutoModChatItem, TextChatItem } from '@/lib/chat/model';
   import { menuHandlers, type OpenMenu } from '@/lib/chat/menu';
   import { ICONS } from '@/lib/icons';
   import Chip from './Chip.svelte';
@@ -12,7 +12,7 @@
     menuOpen = false,
     onmenu,
   }: {
-    item: TextChatItem;
+    item: TextChatItem | AutoModChatItem;
     viewerName?: string;
     menuOpen?: boolean;
     onmenu: OpenMenu;
@@ -39,8 +39,9 @@
   class:deleted={!!item.deleted}
   class:clickable={item.canModerate}
   class:bar={!!item.deleted?.showOriginalLabel}
-  class:system={item.system}
-  role="listitem"
+  class:system={item.kind === 'text' && item.system}
+  class:held={item.kind === 'automod'}
+  role={item.kind === 'automod' ? undefined : 'listitem'}
   onclick={menu.click}
   oncontextmenu={menu.contextmenu}
 >
@@ -174,6 +175,11 @@
   /* "received a gift membership by @x" */
   .system .text {
     color: var(--bytc-text-2);
+  }
+  /* AutoMod: the held message is faded and italic. */
+  .held .text {
+    font-style: italic;
+    opacity: 0.5;
   }
   .deleted .text {
     font-style: italic;

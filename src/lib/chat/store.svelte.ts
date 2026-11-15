@@ -1,7 +1,7 @@
 import type { ChatPayload } from '../protocol';
-import type { ChatAction, EntityMutation, FormattedText } from '../youtube/types';
-import { isAuthored, type ChatItem, type DeletedState } from './model';
-import { parseItem, textOf } from './parse';
+import type { ChatAction, EntityMutation } from '../youtube/types';
+import { isAuthored, type ChatItem } from './model';
+import { deletedState, parseItem } from './parse';
 import { ReplayTimeline } from './replay';
 
 /** Items kept while following the bottom of the chat. */
@@ -203,9 +203,4 @@ function normalizeKey(key: string): string {
   } catch {
     return key;
   }
-}
-
-function deletedState(text?: FormattedText, showOriginal?: FormattedText): DeletedState {
-  // YouTube renders this as plain text (the bold moderator name isn't bold or highlighted).
-  return { text: textOf(text) || '[message deleted]', showOriginalLabel: textOf(showOriginal) || undefined };
 }
