@@ -215,6 +215,11 @@ authors from the last 5 minutes (`PARTICIPANT_TIME_USEC_`), at most 100, matched
 (`getAuthorsFromPrefix`). It never sees the initial history, so the bridge feeds that in the same
 way. Picking a name types plain `@name ` text. The input's newer mention popup
 (`mentionParticipantsManager`, `insertMention` chips) has no data source on viewer pages.
+Mention chips aren't worth inserting ourselves (tested on a test stream): `insertMention(handle)`
+adds a `<b class="mention" data-mention-handle>` chip that the input sends as a mention segment,
+but the message comes back as plain text runs (`"@name"`, `" rest"`), looks the same in chat, and
+the mentioned account got no notification. So our Mention menu item types plain `@name ` text,
+like YouTube's suggestions.
 The selected row uses the hover color, barely different from the panel; our document CSS darkens it.
 
 ### Timestamps for everyone

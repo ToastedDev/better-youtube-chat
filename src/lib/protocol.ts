@@ -28,11 +28,6 @@ export interface RpcMap {
   getContextMenu: { args: { params: string }; result: RawMenuItem[] };
   runMenuItem: { args: { item: RawMenuItem }; result: null };
   navigate: { args: { url: string; browseId?: string }; result: null };
-  /**
-   * Adds a real mention of `handle` (e.g. "@name") to the chat input, as YouTube's own suggestions do.
-   * False when YouTube's input can't (e.g. the name isn't a handle).
-   */
-  insertMention: { args: { handle: string }; result: boolean };
   /** Runs an innertube command (e.g. a Like toggle or "open reply thread") through YouTube's resolver. */
   runCommand: { args: { command: InnertubeCommand }; result: null };
 }
