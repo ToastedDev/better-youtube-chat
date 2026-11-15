@@ -269,7 +269,8 @@ export interface ChatItemRenderer {
 }
 
 export interface ChatAction {
-  addChatItemAction?: { item: ChatItemRenderer };
+  /** `clientId`: in a send_message response, the id of the local copy shown while sending. */
+  addChatItemAction?: { item: ChatItemRenderer; clientId?: string };
   removeChatItemAction?: { targetItemId: string };
   markChatItemAsDeletedAction?: {
     targetItemId: string;
@@ -284,6 +285,8 @@ export interface ChatAction {
   };
   removeChatItemByAuthorAction?: { externalChannelId: string };
   replaceChatItemAction?: { targetItemId: string; replacementItem: ChatItemRenderer };
+  /** Ours, not YouTube's: sending the message with this (client) id failed. */
+  bytcSendFailedAction?: { targetItemId: string };
   /** Chat replay of a past stream: actions to run when the video reaches the offset. */
   replayChatItemAction?: { actions?: ChatAction[]; videoOffsetTimeMsec?: string };
   [action: string]: unknown;

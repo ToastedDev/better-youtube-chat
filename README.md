@@ -10,6 +10,7 @@ with a custom one. YouTube's own header, ticker, pinned message and input box st
   - **Copy message**
   - YouTube's own items (Report, Block, and moderator actions), run through YouTube's own UI
 - Handles deleted/retracted messages, the viewer leaderboard chips and mention highlighting.
+- Your own messages show up as soon as you send them, like YouTube.
 - For moderators: messages AutoMod held for review, with YouTube's Show / Hide buttons.
 - Super Chats, Super Stickers, new members, milestones, gifted memberships, Jewels gifts and
   fundraiser donations. YouTube's ticker, banners and gift animations stay native.

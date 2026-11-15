@@ -60,6 +60,8 @@ export interface TextChatItem extends AuthoredBase {
   chips: Chip[];
   /** A system line from the author's point of view, e.g. "received a gift membership by @x". */
   system?: boolean;
+  /** The viewer's own message that couldn't be sent. */
+  sendFailed?: boolean;
 }
 
 /** Moderators only: a message AutoMod held for review. */

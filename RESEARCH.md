@@ -206,6 +206,20 @@ Keys appear both URL-encoded (`…%3D`) and not, so compare them decoded.
   the same way opens YouTube's reply thread dialog, where replies are read and posted.
 - YouTube's own Like / Reply icons are blank (`imageName: ""`); we draw thumb-up / bubble icons.
 
+### Sending messages (optimistic)
+YouTube shows a sent message before the server answers (verified on a test stream):
+- On send, the input dispatches a `yt-action` named `yt-add-live-chat-text-message-from-template-action`
+  with `args: [{ addLiveChatTextMessageFromTemplateAction: { template: { liveChatTextMessageRenderer:
+  <viewer's authorName, authorPhoto, authorBadges, authorExternalChannelId> } } }, <input element>,
+  { client_message_id, rich_message: { text_segments: [{ text } | { emoji_id }] } }]`. YouTube adds the
+  message under `client_message_id`. The bridge listens for this in the capture phase and does the
+  same. Custom emoji come from `yt-live-chat-renderer`'s `data.emojis`.
+- About 1s later the `send_message` response has `addChatItemAction { item, clientId }` with the
+  real message. YouTube swaps it in for the local copy, and the next poll's copy is a duplicate by id.
+- On failure (e.g. a 400), YouTube keeps the message dimmed (`is-dimmed`: text at 25% opacity) with a
+  red bar (`show-bar`, `--yt-live-chat-error-message-color`) and shows "Error, try again." under the
+  input. We mark it with our own `bytcSendFailedAction` and draw the same.
+
 ### AutoMod (held for review)
 Moderators get `addChatItemAction.item.liveChatAutoModMessageRenderer` (verified on a stream where
 the viewer is a moderator):

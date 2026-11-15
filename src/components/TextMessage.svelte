@@ -41,6 +41,7 @@
   class:bar={!!item.deleted?.showOriginalLabel}
   class:system={item.kind === 'text' && item.system}
   class:held={item.kind === 'automod'}
+  class:failed={item.kind === 'text' && item.sendFailed}
   role={item.kind === 'automod' ? undefined : 'listitem'}
   onclick={menu.click}
   oncontextmenu={menu.contextmenu}
@@ -89,8 +90,9 @@
   .message.clickable.menu-open {
     background: var(--bytc-row-hover);
   }
-  /* Moderator view of a deleted message gets a bar on the left, like YouTube. */
-  .message.bar::before {
+  /* Moderator view of a deleted message (and a message that failed to send) gets a bar on the left, like YouTube. */
+  .message.bar::before,
+  .message.failed::before {
     content: '';
     position: absolute;
     top: 4px;
@@ -99,6 +101,12 @@
     width: 4px;
     border-radius: 2px;
     background: var(--bytc-deleted-bar);
+  }
+  .message.failed::before {
+    background: var(--bytc-error);
+  }
+  .failed .text {
+    opacity: 0.25;
   }
   .timestamp {
     display: none;

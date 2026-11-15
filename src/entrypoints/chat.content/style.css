@@ -15,6 +15,7 @@
   --bytc-owner-fg: var(--yt-live-chat-author-chip-owner-text-color, #000);
   --bytc-deleted: var(--yt-live-chat-deleted-message-color, rgba(0, 0, 0, 0.5));
   --bytc-deleted-bar: var(--yt-live-chat-deleted-message-bar-color, var(--bytc-deleted));
+  --bytc-error: var(--yt-live-chat-error-message-color, #c30027);
   --bytc-verified: var(--bytc-text-2);
   --bytc-mention-bg: var(--yt-live-chat-mention-background-color, #ffd7ca);
   --bytc-mention-fg: var(--yt-live-chat-mention-text-color, #0f0f0f);

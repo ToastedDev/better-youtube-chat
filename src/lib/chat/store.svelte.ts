@@ -148,6 +148,15 @@ function applyAction(items: ChatItem[], action: ChatAction): void {
   if (action.addChatItemAction) {
     const item = parseItem(action.addChatItemAction.item);
     if (!item) return;
+    // The real version of a message the viewer just sent replaces its local copy in place.
+    const local = action.addChatItemAction.clientId
+      ? items.findIndex((i) => i.id === action.addChatItemAction!.clientId)
+      : -1;
+    if (local !== -1) {
+      if (items.some((i) => i.id === item.id)) items.splice(local, 1);
+      else items[local] = item;
+      return;
+    }
     const index = items.findIndex((i) => i.id === item.id);
     if (index === -1) items.push(item);
     // A slot YouTube reserved earlier: fill it in place.
@@ -182,6 +191,12 @@ function applyAction(items: ChatItem[], action: ChatAction): void {
     const index = items.findIndex((i) => i.id === targetItemId);
     const item = items[index];
     if (item && isAuthored(item)) items[index] = { ...item, deleted: deletedState(deletedStateMessage, showOriginalContentMessage) };
+    return;
+  }
+  if (action.bytcSendFailedAction) {
+    const index = items.findIndex((i) => i.id === action.bytcSendFailedAction!.targetItemId);
+    const item = items[index];
+    if (item?.kind === 'text') items[index] = { ...item, sendFailed: true };
     return;
   }
   if (action.markChatItemsByAuthorAsDeletedAction) {

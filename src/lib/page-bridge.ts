@@ -6,7 +6,7 @@
  * - Answers RPCs from the UI that need the page's JS context or the youtube.com origin.
  */
 import { listen, post, type ChatPayload, type RpcMap, type RpcMethod } from './protocol';
-import type { EntityMutation, RawMenuItem } from './youtube/types';
+import type { EntityMutation, LiveChatTextMessageRenderer, RawMenuItem } from './youtube/types';
 
 /** Live chat polls, and the chunks of a past stream's chat replay (same response shape). */
 const LIVE_CHAT_PATHS = new Set(['/youtubei/v1/live_chat/get_live_chat', '/youtubei/v1/live_chat/get_live_chat_replay']);
@@ -15,6 +15,8 @@ const LIVE_CHAT_PATHS = new Set(['/youtubei/v1/live_chat/get_live_chat', '/youtu
  * apply them without waiting for the next poll.
  */
 const ACTION_RESPONSE_PATHS = new Set(['/youtubei/v1/live_chat/moderate', '/youtubei/v1/live_chat/live_chat_action']);
+/** Answers with the sent message as an `addChatItemAction` carrying the local copy's `clientId`. */
+const SEND_MESSAGE_PATH = '/youtubei/v1/live_chat/send_message';
 
 
 type AnyRecord = Record<string, any>;
@@ -105,6 +107,39 @@ export function installPageBridge(): void {
     },
   });
 
+  // Sending a message: YouTube shows it right away, built from a template with the viewer's author
+  // fields, under its client message id. The send_message response then has the real message with
+  // that id as `clientId`, which the store swaps in. Do the same.
+  const pendingSends: string[] = [];
+  document.addEventListener(
+    'yt-action',
+    (event) => {
+      try {
+        const detail = (event as CustomEvent).detail as AnyRecord | undefined;
+        if (detail?.actionName !== 'yt-add-live-chat-text-message-from-template-action') return;
+        const local = localMessage(detail.args);
+        if (!local) return;
+        pendingSends.push(local.clientId);
+        emit({ reset: false, actions: [{ addChatItemAction: { item: { liveChatTextMessageRenderer: local.renderer } } }] });
+      } catch (err) {
+        console.error('[better-yt-chat] failed to show the sent message', err);
+      }
+    },
+    true,
+  );
+
+  /**
+   * A send finished. If the response doesn't replace the local copy, the send failed: YouTube keeps
+   * the message, dimmed with a red bar, and shows "Error, try again." under the input.
+   */
+  function settleSend(json: AnyRecord | undefined) {
+    const clientId = pendingSends.shift();
+    if (json) handleActionResponse(json);
+    if (clientId && !JSON.stringify(json?.actions ?? []).includes(clientId)) {
+      emit({ reset: false, actions: [{ bytcSendFailedAction: { targetItemId: clientId } }] });
+    }
+  }
+
   function handleActionResponse(json: AnyRecord) {
     logResponse(json);
     const actions = Array.isArray(json?.actions) ? json.actions : [];
@@ -124,6 +159,12 @@ export function installPageBridge(): void {
     }
     const promise = originalFetch.apply(this, args);
     try {
+      if (path === SEND_MESSAGE_PATH) {
+        promise
+          .then((res) => res.clone().json())
+          .then(settleSend, () => settleSend(undefined))
+          .catch((err) => console.error('[better-yt-chat] failed to handle send_message', err));
+      }
       const handler =
         LIVE_CHAT_PATHS.has(path) ? handleResponse : ACTION_RESPONSE_PATHS.has(path) ? handleActionResponse : null;
       if (handler) {
@@ -203,6 +244,36 @@ export function installPageBridge(): void {
   });
 
   post('page', { type: 'ready' });
+}
+
+/**
+ * The local copy of a message being sent, from the `yt-add-live-chat-text-message-from-template-action`
+ * args: `[{ addLiveChatTextMessageFromTemplateAction: { template } }, inputElement,
+ * { client_message_id, rich_message: { text_segments } }]`.
+ */
+function localMessage(args: unknown): { clientId: string; renderer: LiveChatTextMessageRenderer } | undefined {
+  const [action, , params] = Array.isArray(args) ? (args as AnyRecord[]) : [];
+  const template = action?.addLiveChatTextMessageFromTemplateAction?.template?.liveChatTextMessageRenderer;
+  const clientId = params?.client_message_id;
+  const segments = params?.rich_message?.text_segments;
+  if (!template || typeof clientId !== 'string' || !Array.isArray(segments)) return undefined;
+  // Custom emoji are sent by id only; the chat's emoji list has their images.
+  const chat = document.querySelector('yt-live-chat-renderer') as AnyRecord | null;
+  const emojis: AnyRecord[] = (chat?.data ?? chat?.polymerController?.data)?.emojis ?? [];
+  const runs = segments.flatMap((segment: AnyRecord): AnyRecord[] => {
+    if (typeof segment?.text === 'string') return [{ text: segment.text }];
+    const emoji = segment?.emoji_id && emojis.find((e) => e?.emojiId === segment.emoji_id);
+    return emoji ? [{ emoji: structuredClone(emoji) }] : [];
+  });
+  return {
+    clientId,
+    renderer: {
+      ...structuredClone(template),
+      id: clientId,
+      timestampUsec: String(Date.now() * 1000),
+      message: { runs },
+    },
+  };
 }
 
 function entityMutations(json: AnyRecord | undefined): EntityMutation[] | undefined {
