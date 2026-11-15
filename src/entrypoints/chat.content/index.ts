@@ -6,7 +6,7 @@ import { parseItem } from '@/lib/chat/parse';
 import { ChatStore } from '@/lib/chat/store.svelte';
 import { NATIVE_LIST_KEY, readNativeList, writeNativeList } from '@/lib/settings';
 import { NativeThemeSampler } from '@/lib/native-theme';
-import './style.css';
+import styles from './style.css?inline';
 
 const HOST_TAG = 'better-yt-chat';
 const ANCHOR = 'yt-live-chat-renderer #item-list';
@@ -51,7 +51,9 @@ export default defineContentScript({
   matches: ['https://www.youtube.com/live_chat*'],
   allFrames: true,
   runAt: 'document_idle',
-  cssInjectionMode: 'ui',
+  // Styles are bundled into the script (style.css inline, components inject their own) rather than
+  // fetched from a web-accessible chat.css, which Chrome warns about and pages could probe.
+  cssInjectionMode: 'manual',
 
   async main(ctx) {
     const store = new ChatStore();
@@ -85,6 +87,7 @@ export default defineContentScript({
 
     const ui = await createShadowRootUi(ctx, {
       name: HOST_TAG,
+      css: styles,
       position: 'inline',
       // Only the message list is replaced; header, ticker, pinned banner and input stay native.
       anchor: ANCHOR,
