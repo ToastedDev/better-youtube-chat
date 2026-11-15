@@ -3,7 +3,7 @@
  * `fetch`) and the ISOLATED-world content script (which renders the Svelte UI).
  * Both live in the same `live_chat` frame, so they use `window.postMessage`.
  */
-import type { ChatAction, RawMenuItem } from './youtube/types';
+import type { ChatAction, EntityMutation, InnertubeCommand, RawMenuItem } from './youtube/types';
 
 const CHANNEL_KEY = '__betterYtChat';
 
@@ -11,6 +11,8 @@ export interface ChatPayload {
   /** True for a full (re)load, e.g. first load or switching Top chat / Live chat. */
   reset: boolean;
   actions: ChatAction[];
+  /** Entity store updates that came with the actions (like / reply counts). */
+  entities?: EntityMutation[];
   viewerName?: string;
 }
 
@@ -18,6 +20,8 @@ export interface RpcMap {
   getContextMenu: { args: { params: string }; result: RawMenuItem[] };
   runMenuItem: { args: { item: RawMenuItem }; result: null };
   navigate: { args: { url: string; browseId?: string }; result: null };
+  /** Runs an innertube command (e.g. a Like toggle or "open reply thread") through YouTube's resolver. */
+  runCommand: { args: { command: InnertubeCommand }; result: null };
 }
 
 export type RpcMethod = keyof RpcMap;

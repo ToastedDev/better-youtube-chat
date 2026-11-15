@@ -2,10 +2,20 @@
   import type { PageBridge } from '@/lib/bridge';
   import type { MenuTarget } from '@/lib/chat/model';
   import type { ChatStore } from '@/lib/chat/store.svelte';
+  import { setAppContext } from '@/lib/context';
   import ChatList from './ChatList.svelte';
   import ContextMenu from './ContextMenu.svelte';
 
   let { store, bridge }: { store: ChatStore; bridge: PageBridge } = $props();
+
+  setAppContext({
+    get store() {
+      return store;
+    },
+    get bridge() {
+      return bridge;
+    },
+  });
 
   let menu = $state.raw<MenuTarget | null>(null);
 </script>

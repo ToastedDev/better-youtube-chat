@@ -124,9 +124,11 @@
       <Icon name="ALTERNATE_EMAIL" /><span>Mention</span>
     </button>
   {/if}
-  <button type="button" role="menuitem" class="entry" onclick={copyMessage}>
-    <Icon name="CONTENT_COPY" /><span>Copy message</span>
-  </button>
+  {#if item.message.length}
+    <button type="button" role="menuitem" class="entry" onclick={copyMessage}>
+      <Icon name="CONTENT_COPY" /><span>Copy message</span>
+    </button>
+  {/if}
 
   {#if native === 'loading'}
     <div class="divider"></div>

@@ -61,20 +61,15 @@ export interface ButtonViewModel {
   /** ARGB packed into an unsigned 32-bit int. */
   customBackgroundColor?: number;
   customFontColor?: number;
+  iconTrailing?: boolean;
+  onTap?: { innertubeCommand?: InnertubeCommand };
 }
 
-export interface LiveChatTextMessageRenderer {
+export interface LiveChatTextMessageRenderer extends AuthorFields {
   id: string;
   timestampUsec: string;
   message?: FormattedText;
-  authorName?: FormattedText;
-  authorPhoto?: Thumbnails;
-  authorExternalChannelId: string;
-  authorBadges?: AuthorBadge[];
   beforeContentButtons?: { buttonViewModel?: ButtonViewModel }[];
-  contextMenuEndpoint?: { liveChatItemContextMenuEndpoint?: { params: string } };
-  /** Present when the viewer can moderate (Remove / timeout / hide quick actions). */
-  inlineActionButtons?: unknown[];
 }
 
 export interface ButtonRenderer {
@@ -90,9 +85,150 @@ export interface LiveChatViewerEngagementMessageRenderer {
   actionButton?: { buttonRenderer?: ButtonRenderer };
 }
 
+/** Author fields most chat item renderers share. */
+export interface AuthorFields {
+  authorName?: FormattedText;
+  authorPhoto?: Thumbnails;
+  authorExternalChannelId: string;
+  authorBadges?: AuthorBadge[];
+  contextMenuEndpoint?: { liveChatItemContextMenuEndpoint?: { params: string } };
+  /** Present when the viewer can moderate (Remove / timeout / hide quick actions). */
+  inlineActionButtons?: unknown[];
+}
+
+/** Any innertube command, e.g. `{ liveChatActionEndpoint: {...} }`; run through YouTube's resolver. */
+export type InnertubeCommand = Record<string, unknown>;
+
+export interface ButtonWithCommand {
+  buttonViewModel?: ButtonViewModel;
+}
+
+/** Super Chat Like button. The count lives in a `likeCountEntity` in `frameworkUpdates`. */
+export interface PdgLikeViewModel {
+  likeCountEntityKey?: string;
+  engagementStateKey?: string;
+  likeCountPlaceholder?: AttributedString;
+  toggleButton?: {
+    toggleButtonViewModel?: {
+      defaultButtonViewModel?: ButtonWithCommand;
+      toggledButtonViewModel?: ButtonWithCommand;
+    };
+  };
+}
+
+/** Super Chat Reply button. The count lives in a `replyCountEntity` in `frameworkUpdates`. */
+export interface PdgReplyButtonViewModel {
+  replyButton?: ButtonWithCommand;
+  replyCountEntityKey?: string;
+  replyCountPlaceholder?: AttributedString;
+}
+
+/** The creator's heart on a Super Chat; whether it's hearted is an `engagementToolbarStateEntityPayload`. */
+export interface CreatorHeartViewModel {
+  creatorThumbnail?: ImageSources;
+  engagementStateKey?: string;
+  /** E.g. "❤ by @channel". */
+  heartedHoverText?: string;
+}
+
+/** Colors are ARGB packed into unsigned 32-bit ints. */
+export interface LiveChatPaidMessageRenderer extends AuthorFields {
+  id: string;
+  timestampUsec: string;
+  purchaseAmountText?: FormattedText;
+  message?: FormattedText;
+  headerBackgroundColor?: number;
+  headerTextColor?: number;
+  bodyBackgroundColor?: number;
+  bodyTextColor?: number;
+  authorNameTextColor?: number;
+  isV2Style?: boolean;
+  pdgLikeButton?: { pdgLikeViewModel?: PdgLikeViewModel };
+  replyButton?: { pdgReplyButtonViewModel?: PdgReplyButtonViewModel };
+  creatorHeartButton?: { creatorHeartViewModel?: CreatorHeartViewModel };
+}
+
+export interface LiveChatPaidStickerRenderer extends AuthorFields {
+  id: string;
+  timestampUsec: string;
+  purchaseAmountText?: FormattedText;
+  sticker?: Thumbnails & { accessibility?: { accessibilityData?: { label?: string } } };
+  stickerDisplayWidth?: number;
+  stickerDisplayHeight?: number;
+  backgroundColor?: number;
+  moneyChipBackgroundColor?: number;
+  moneyChipTextColor?: number;
+  authorNameTextColor?: number;
+  isV2Style?: boolean;
+}
+
+export interface LiveChatMembershipItemRenderer extends AuthorFields {
+  id: string;
+  timestampUsec: string;
+  /** Milestones: "Member for 6 months". */
+  headerPrimaryText?: FormattedText;
+  /** "Welcome to <level>!" for new members; the level name for milestones. */
+  headerSubtext?: FormattedText;
+  /** Milestone chat message. */
+  message?: FormattedText;
+}
+
+export interface LiveChatSponsorshipsGiftPurchaseAnnouncementRenderer {
+  id: string;
+  timestampUsec: string;
+  authorExternalChannelId: string;
+  header?: {
+    liveChatSponsorshipsHeaderRenderer?: Omit<AuthorFields, 'authorExternalChannelId'> & {
+      primaryText?: FormattedText;
+      image?: Thumbnails;
+    };
+  };
+}
+
+export interface LiveChatSponsorshipsGiftRedemptionAnnouncementRenderer extends AuthorFields {
+  id: string;
+  timestampUsec: string;
+  message?: FormattedText;
+}
+
+export interface LiveChatDonationAnnouncementRenderer {
+  id: string;
+  timestampUsec?: string;
+  text?: FormattedText;
+  subtext?: FormattedText;
+  authorPhoto?: Thumbnails;
+}
+
+/** Newer "view model" text: plain content plus style runs we don't need. */
+export interface AttributedString {
+  content?: string;
+}
+
+export interface ImageSources {
+  sources?: { url: string; width?: number; height?: number }[];
+}
+
+/** A Jewels gift ("sent Star"). */
+export interface GiftMessageViewModel {
+  id: string;
+  text?: AttributedString;
+  authorName?: AttributedString;
+  authorAvatar?: { avatarViewModel?: { image?: ImageSources } };
+  giftImage?: ImageSources;
+  giftImageA11yLabel?: string;
+}
+
 export interface ChatItemRenderer {
   liveChatTextMessageRenderer?: LiveChatTextMessageRenderer;
   liveChatViewerEngagementMessageRenderer?: LiveChatViewerEngagementMessageRenderer;
+  liveChatPaidMessageRenderer?: LiveChatPaidMessageRenderer;
+  liveChatPaidStickerRenderer?: LiveChatPaidStickerRenderer;
+  liveChatMembershipItemRenderer?: LiveChatMembershipItemRenderer;
+  liveChatSponsorshipsGiftPurchaseAnnouncementRenderer?: LiveChatSponsorshipsGiftPurchaseAnnouncementRenderer;
+  liveChatSponsorshipsGiftRedemptionAnnouncementRenderer?: LiveChatSponsorshipsGiftRedemptionAnnouncementRenderer;
+  liveChatDonationAnnouncementRenderer?: LiveChatDonationAnnouncementRenderer;
+  liveChatPlaceholderItemRenderer?: { id: string };
+  giftMessageViewModel?: GiftMessageViewModel;
   [renderer: string]: unknown;
 }
 
@@ -113,6 +249,34 @@ export interface ChatAction {
   removeChatItemByAuthorAction?: { externalChannelId: string };
   replaceChatItemAction?: { targetItemId: string; replacementItem: ChatItemRenderer };
   [action: string]: unknown;
+}
+
+/**
+ * One change to YouTube's client-side entity store, sent next to the chat actions as
+ * `frameworkUpdates.entityBatchUpdate.mutations`. Like and reply counts arrive this way.
+ */
+export interface EntityMutation {
+  entityKey: string;
+  type: 'ENTITY_MUTATION_TYPE_REPLACE' | 'ENTITY_MUTATION_TYPE_DELETE' | string;
+  /** One key naming the entity type, e.g. `{ likeCountEntity: {...} }`. */
+  payload?: Record<string, unknown>;
+}
+
+export interface LikeCountEntity {
+  likeCountIfLiked?: AttributedString;
+  likeCountIfIndifferent?: AttributedString;
+  likeButtonA11yText?: AttributedString;
+}
+
+/** The viewer's like and the creator's heart, keyed by the buttons' `engagementStateKey`. */
+export interface EngagementToolbarState {
+  likeState?: 'TOOLBAR_LIKE_STATE_LIKED' | 'TOOLBAR_LIKE_STATE_INDIFFERENT' | string;
+  heartState?: 'TOOLBAR_HEART_STATE_HEARTED' | 'TOOLBAR_HEART_STATE_UNHEARTED' | string;
+}
+
+export interface ReplyCountEntity {
+  replyCount?: AttributedString;
+  replyButtonAccessibilityText?: string;
 }
 
 /** Data for one entry of a native context menu, e.g. `menuServiceItemRenderer`. */

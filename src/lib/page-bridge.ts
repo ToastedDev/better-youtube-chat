@@ -6,10 +6,13 @@
  * - Answers RPCs from the UI that need the page's JS context or the youtube.com origin.
  */
 import { listen, post, type ChatPayload, type RpcMap, type RpcMethod } from './protocol';
-import type { RawMenuItem } from './youtube/types';
+import type { EntityMutation, RawMenuItem } from './youtube/types';
 
 const LIVE_CHAT_PATH = '/youtubei/v1/live_chat/get_live_chat';
-/** Moderation calls answer with the resulting chat actions; apply them without waiting for the next poll. */
+/**
+ * Moderation calls and Super Chat likes answer with the resulting chat actions or entity updates;
+ * apply them without waiting for the next poll.
+ */
 const ACTION_RESPONSE_PATHS = new Set(['/youtubei/v1/live_chat/moderate', '/youtubei/v1/live_chat/live_chat_action']);
 
 
@@ -36,16 +39,24 @@ export function installPageBridge(): void {
     backlog.push(payload);
   }
 
+  // Dev builds: `__bytcInject([{ addChatItemAction: { item: {...} } }])` feeds made-up actions to
+  // the UI, for item types a stream doesn't happen to have.
+  if (devLog) w.__bytcInject = (actions: ChatPayload['actions']) => emit({ reset: false, actions: structuredClone(actions) });
+
+  function logResponse(json: unknown) {
+    if (!devLog) return;
+    devLog.push(json);
+    if (devLog.length > 300) devLog.shift();
+  }
+
   function handleResponse(json: AnyRecord) {
-    if (devLog) {
-      devLog.push(json);
-      if (devLog.length > 300) devLog.shift();
-    }
+    logResponse(json);
     const lcc = json?.continuationContents?.liveChatContinuation;
     if (!lcc) return;
     emit({
       reset: 'itemList' in lcc,
       actions: lcc.actions ?? [],
+      entities: entityMutations(json),
       viewerName: typeof lcc.viewerName === 'string' ? lcc.viewerName : undefined,
     });
   }
@@ -65,7 +76,10 @@ export function installPageBridge(): void {
         const data = value as AnyRecord;
         const lcc = data?.continuationContents?.liveChatContinuation ?? data?.contents?.liveChatRenderer;
         if (lcc?.actions?.length) {
-          emit({ reset: true, actions: structuredClone(lcc.actions), viewerName: lcc.viewerName });
+          const actions = structuredClone(lcc.actions);
+          const entities = structuredClone(entityMutations(data));
+          logResponse({ initial: true, continuationContents: { liveChatContinuation: { actions } }, entities });
+          emit({ reset: true, actions, entities, viewerName: lcc.viewerName });
         }
       } catch (err) {
         console.error('[better-yt-chat] failed to read ytInitialData', err);
@@ -74,7 +88,10 @@ export function installPageBridge(): void {
   });
 
   function handleActionResponse(json: AnyRecord) {
-    if (Array.isArray(json?.actions) && json.actions.length) emit({ reset: false, actions: json.actions });
+    logResponse(json);
+    const actions = Array.isArray(json?.actions) ? json.actions : [];
+    const entities = entityMutations(json);
+    if (actions.length || entities?.length) emit({ reset: false, actions, entities });
   }
 
   window.fetch = function (this: unknown, ...args: Parameters<typeof fetch>) {
@@ -110,6 +127,10 @@ export function installPageBridge(): void {
       navigateTop(url, browseId);
       return null;
     },
+    runCommand: async ({ command }) => {
+      await tapServiceItem({ serviceEndpoint: command });
+      return null;
+    },
   };
 
   listen('ext', async (msg) => {
@@ -132,6 +153,11 @@ export function installPageBridge(): void {
   });
 
   post('page', { type: 'ready' });
+}
+
+function entityMutations(json: AnyRecord | undefined): EntityMutation[] | undefined {
+  const mutations = json?.frameworkUpdates?.entityBatchUpdate?.mutations;
+  return Array.isArray(mutations) && mutations.length ? mutations : undefined;
 }
 
 function requestPath(input: RequestInfo | URL): string {

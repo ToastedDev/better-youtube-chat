@@ -10,7 +10,10 @@ with a custom one. YouTube's own header, ticker, pinned message and input box st
   - **Copy message**
   - YouTube's own items (Report, Block, and moderator actions), run through YouTube's own UI
 - Handles deleted/retracted messages, the viewer leaderboard chips and mention highlighting.
-- Not yet: superchats, stickers, memberships, gifts (YouTube's ticker still shows them).
+- Super Chats, Super Stickers, new members, milestones, gifted memberships, Jewels gifts and
+  fundraiser donations. YouTube's ticker, banners and gift animations stay native.
+- Super Chat Like / Reply buttons with live counts. Reply (and the "@name" chip on replies) opens
+  YouTube's own reply thread dialog.
 
 ## Develop
 
@@ -34,8 +37,12 @@ rendering hidden behind ours). Page CSS can't do this, because the shadow root's
 messages, so compare the existing ones.
 
 ### Capturing fixtures
-In dev builds the page bridge keeps the last 300 raw `get_live_chat` responses. In DevTools, switch
-the console's context to the `live_chat` frame and run `copy(JSON.stringify(__bytcLog))`.
+In dev builds the page bridge keeps the initial history (marked `initial: true`) and the last 300 raw
+`get_live_chat` responses. In DevTools, switch the console's context to the `live_chat` frame and run
+`copy(JSON.stringify(__bytcLog))`.
+
+To try item types a stream doesn't have, feed made-up actions to the UI from the same console:
+`__bytcInject([{ addChatItemAction: { item: { liveChatPaidStickerRenderer: {...} } } }])`.
 
 ## How it works
 See [RESEARCH.md](./RESEARCH.md).

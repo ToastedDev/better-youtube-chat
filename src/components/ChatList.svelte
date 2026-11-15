@@ -1,8 +1,13 @@
 <script lang="ts">
   import type { MenuTarget } from '@/lib/chat/model';
   import type { ChatStore } from '@/lib/chat/store.svelte';
+  import DonationMessage from './DonationMessage.svelte';
   import EngagementMessage from './EngagementMessage.svelte';
+  import GiftMessage from './GiftMessage.svelte';
   import Icon from './Icon.svelte';
+  import MembershipItem from './MembershipItem.svelte';
+  import PaidMessage from './PaidMessage.svelte';
+  import PaidSticker from './PaidSticker.svelte';
   import TextMessage from './TextMessage.svelte';
 
   let {
@@ -50,6 +55,16 @@
     {#each store.items as item (item.id)}
       {#if item.kind === 'text'}
         <TextMessage {item} viewerName={store.viewerName} menuOpen={item.id === menuItemId} {onmenu} />
+      {:else if item.kind === 'paid'}
+        <PaidMessage {item} viewerName={store.viewerName} menuOpen={item.id === menuItemId} {onmenu} />
+      {:else if item.kind === 'sticker'}
+        <PaidSticker {item} menuOpen={item.id === menuItemId} {onmenu} />
+      {:else if item.kind === 'membership'}
+        <MembershipItem {item} viewerName={store.viewerName} menuOpen={item.id === menuItemId} {onmenu} />
+      {:else if item.kind === 'gift'}
+        <GiftMessage {item} />
+      {:else if item.kind === 'donation'}
+        <DonationMessage {item} />
       {:else if item.kind === 'engagement'}
         <EngagementMessage {item} />
       {/if}

@@ -1,6 +1,8 @@
 <script lang="ts">
-  import type { MenuTarget, TextChatItem } from '@/lib/chat/model';
+  import type { TextChatItem } from '@/lib/chat/model';
+  import { menuHandlers, type OpenMenu } from '@/lib/chat/menu';
   import { ICONS } from '@/lib/icons';
+  import Chip from './Chip.svelte';
   import Icon from './Icon.svelte';
   import Segments from './Segments.svelte';
 
@@ -13,7 +15,7 @@
     item: TextChatItem;
     viewerName?: string;
     menuOpen?: boolean;
-    onmenu: (target: MenuTarget) => void;
+    onmenu: OpenMenu;
   } = $props();
 
   const author = $derived(item.author);
@@ -25,31 +27,7 @@
   // Badges without a drawable icon (e.g. OWNER, shown by the name chip instead) would leave a gap.
   const badges = $derived(author.badges.filter((b) => b.kind === 'image' || b.icon in ICONS));
 
-  function openFromElement(event: MouseEvent, alignRight: boolean) {
-    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
-    onmenu({
-      item,
-      x: alignRight ? rect.right : rect.left,
-      y: rect.bottom,
-      alignRight,
-      flipY: rect.top,
-    });
-  }
-
-  /** For moderators YouTube makes the whole message clickable to open the menu. */
-  function onclick(event: MouseEvent) {
-    if (!item.canModerate) return;
-    const target = event.target as Element;
-    if (target.closest('a, button')) return;
-    if (window.getSelection()?.toString()) return; // Let people select text.
-    onmenu({ item, x: event.clientX, y: event.clientY });
-  }
-
-  function oncontextmenu(event: MouseEvent) {
-    if (event.shiftKey) return; // Shift+right-click keeps the browser menu.
-    event.preventDefault();
-    onmenu({ item, x: event.clientX, y: event.clientY });
-  }
+  const menu = menuHandlers(() => item, (target) => onmenu(target));
 </script>
 
 <!-- Row click is a mouse shortcut for moderators; the ⋮ button is the keyboard path. -->
@@ -60,9 +38,10 @@
   class:deleted={!!item.deleted}
   class:clickable={item.canModerate}
   class:bar={!!item.deleted?.showOriginalLabel}
+  class:system={item.system}
   role="listitem"
-  {onclick}
-  {oncontextmenu}
+  onclick={menu.click}
+  oncontextmenu={menu.contextmenu}
 >
   {#if author.photo}
     <img class="avatar" src={author.photo} alt="" loading="lazy" draggable="false" />
@@ -77,12 +56,10 @@
       class:moderator={author.isModerator}
       class:member={author.isMember}
       class:verified={author.isVerified}
-      onclick={(e) => openFromElement(e, false)}>{author.name}</button
+      onclick={menu.author}>{author.name}</button
     >{#each badges as badge, i (i)}<span class="badge" class:moderator={badge.kind === 'icon' && badge.icon === 'MODERATOR'} title={badge.label}
         >{#if badge.kind === 'image'}<img src={badge.src} alt={badge.label} />{:else}<Icon name={badge.icon} size={16} />{/if}</span
-      >{/each}{#each item.chips as chip, i (i)}<span class="chip" style:background={chip.background} style:color={chip.color}
-        >{#if chip.icon}<Icon name={chip.icon} size={14} />{/if}{chip.label}</span
-      >{/each}<!-- No whitespace before the text: spacing comes from the margins, like YouTube. -->{#if item.deleted && !revealed}<span
+      >{/each}{#each item.chips as chip, i (i)}<Chip {chip} />{/each}<!-- No whitespace before the text: spacing comes from the margins, like YouTube. -->{#if item.deleted && !revealed}<span
         class="text">{item.deleted.text}</span
       >{#if item.deleted.showOriginalLabel}<button
           type="button"
@@ -90,7 +67,7 @@
           onclick={() => (revealed = true)}>{item.deleted.showOriginalLabel}</button
         >{/if}{:else}<span class="text"><Segments segments={item.message} {viewerName} /></span>{/if}
   </div>
-  <button type="button" class="menu-button" aria-label="Chat actions" onclick={(e) => openFromElement(e, true)}>
+  <button type="button" class="menu-button" aria-label="Chat actions" onclick={menu.button}>
     <Icon name="MORE_VERT" />
   </button>
 </div>
@@ -193,20 +170,9 @@
     width: 16px;
     height: 16px;
   }
-  .chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 2px;
-    height: 20px;
-    margin-right: 8px;
-    padding: 0 6px;
-    border-radius: 10px;
-    font-size: 12px;
-    font-weight: 500;
-    line-height: 20px;
-    vertical-align: top;
-    background: var(--bytc-chip-bg);
-    color: var(--bytc-text);
+  /* "received a gift membership by @x" */
+  .system .text {
+    color: var(--bytc-text-2);
   }
   .deleted .text {
     font-style: italic;

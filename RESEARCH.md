@@ -54,11 +54,16 @@ Seen in this stream:
 | `addBannerToLiveChatCommand.bannerRenderer.liveChatBannerRenderer` | pinned message ("Pinned by @chMDM") |
 | `removeChatItemAction` | message removed by mod |
 
-Not present in this stream, but part of the known YouTube schema. **Verify these against a stream with superchats:**
-`liveChatPaidMessageRenderer` (superchat), `liveChatPaidStickerRenderer`,
-`liveChatMembershipItemRenderer`, `liveChatSponsorshipsGiftPurchaseAnnouncementRenderer`,
-`liveChatSponsorshipsGiftRedemptionAnnouncementRenderer`, `liveChatModeChangeMessageRenderer`,
-`liveChatPlaceholderItemRenderer`, `addLiveChatTickerItemAction` (the ticker row of superchats/members),
+Seen on streams with Super Chats, gifts, memberships and a fundraiser (all handled, see `parse.ts`):
+`liveChatPaidMessageRenderer`, `liveChatMembershipItemRenderer`, `giftMessageViewModel` (Jewels gifts;
+no channel id), `liveChatDonationAnnouncementRenderer`, `liveChatPlaceholderItemRenderer` (an empty
+slot; kept so a later item with the same id lands in place), `addLiveChatTickerItemAction` (the ticker,
+left native; its items carry the full renderer in `showItemEndpoint.showLiveChatItemEndpoint.renderer`).
+
+Handled from YouTube's schema but not seen live yet: `liveChatPaidStickerRenderer`,
+`liveChatSponsorshipsGiftPurchaseAnnouncementRenderer`,
+`liveChatSponsorshipsGiftRedemptionAnnouncementRenderer`. Other known actions:
+`liveChatModeChangeMessageRenderer`,
 `markChatItemAsDeletedAction`, `markChatItemsByAuthorAsDeletedAction`, `removeChatItemByAuthorAction`,
 `replaceChatItemAction`, `removeBannerForLiveChatCommand`, `updateLiveChatPollAction`,
 `showLiveChatTooltipCommand`, `closeLiveChatActionPanelAction`. For replays, actions are wrapped in
@@ -174,9 +179,33 @@ popout falls back to a new tab.
 
 ### Other payload fields seen
 - `beforeContentButtons[].buttonViewModel` is the viewer leaderboard chip: `iconName: CROWN_FILLED`,
-  `title: "#2"`, `customBackgroundColor`/`customFontColor` as ARGB ints.
+  `title: "#2"`, `customBackgroundColor`/`customFontColor` as ARGB ints. Replies to a Super Chat use
+  the same field for the "@name" chip: `iconName: MESSAGE`, `iconTrailing: true`, and an `onTap`
+  that opens the reply thread.
+
+### Super Chat likes, replies and hearts (entity store)
+The renderer only holds keys; the values arrive as `frameworkUpdates.entityBatchUpdate.mutations`
+next to the actions (`get_live_chat`, `ytInitialData`, and `live_chat_action` responses), each
+`{ entityKey, type: ENTITY_MUTATION_TYPE_REPLACE | …_DELETE, payload: { <entityType>: {...} } }`.
+Keys appear both URL-encoded (`…%3D`) and not, so compare them decoded.
+| renderer field | entity |
+|---|---|
+| `pdgLikeButton.pdgLikeViewModel.likeCountEntityKey` | `likeCountEntity { likeCountIfLiked, likeCountIfIndifferent }` |
+| `pdgLikeButton.pdgLikeViewModel.engagementStateKey` | `engagementToolbarStateEntityPayload { likeState: TOOLBAR_LIKE_STATE_LIKED / _INDIFFERENT }` |
+| `replyButton.pdgReplyButtonViewModel.replyCountEntityKey` | `replyCountEntity { replyCount }` |
+| `creatorHeartButton.creatorHeartViewModel.engagementStateKey` | `engagementToolbarStateEntityPayload { heartState: TOOLBAR_HEART_STATE_HEARTED / _UNHEARTED }` |
+
+- Like / Unlike are `liveChatActionEndpoint` commands in the toggle button's default / toggled
+  `buttonViewModel.onTap`. Running them (as a `serviceEndpoint`, see "Running native menu items")
+  works. The response is only `responseContext`, so the new like state shows up on the next load,
+  not right away (verified: like, reload shows LIKED; unlike, reload shows INDIFFERENT). Running the
+  command this way doesn't update YouTube's own entity store, so its reply dialog shows the old state
+  until a reload.
+- Reply is a `showEngagementPanelEndpoint` (`PAreply_thread`, `PANEL_POPUP_TYPE_DIALOG`); running it
+  the same way opens YouTube's reply thread dialog, where replies are read and posted.
+- YouTube's own Like / Reply icons are blank (`imageName: ""`); we draw thumb-up / bubble icons.
 
 ## 7. Next steps
-- Superchats / stickers / memberships / gifts: needs a stream that has them (capture with `__bytcLog`).
+- Verify stickers, milestones and gifted-membership announcements on a live stream.
 - Replays (`get_live_chat_replay`): actions must be scheduled by video time (`videoOffsetTimeMsec`).
 - Settings (timestamps, font size, menu item toggles), keyboard shortcuts, and virtualization if needed.
