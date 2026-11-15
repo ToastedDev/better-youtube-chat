@@ -6,6 +6,7 @@
   import GiftMessage from './GiftMessage.svelte';
   import Icon from './Icon.svelte';
   import MembershipItem from './MembershipItem.svelte';
+  import ModeChangeMessage from './ModeChangeMessage.svelte';
   import PaidMessage from './PaidMessage.svelte';
   import PaidSticker from './PaidSticker.svelte';
   import TextMessage from './TextMessage.svelte';
@@ -67,6 +68,8 @@
         <DonationMessage {item} />
       {:else if item.kind === 'engagement'}
         <EngagementMessage {item} />
+      {:else if item.kind === 'mode-change'}
+        <ModeChangeMessage {item} />
       {/if}
     {/each}
   </div>

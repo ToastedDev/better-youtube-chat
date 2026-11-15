@@ -144,10 +144,21 @@ export interface DonationChatItem {
   subtext: Segment[];
 }
 
+/** YouTube's notices: the welcome message, poll results, etc. */
 export interface EngagementChatItem {
   kind: 'engagement';
   id: string;
   message: Segment[];
+  /** E.g. POLL. YouTube hides some (the welcome message's YOUTUBE_ROUND); we draw the ones we know. */
+  icon?: string;
+}
+
+/** Chat mode changes: "Slow mode is on" / "Send a message every 1 minute". */
+export interface ModeChangeChatItem {
+  kind: 'mode-change';
+  id: string;
+  text: Segment[];
+  subtext: Segment[];
 }
 
 /**
@@ -160,7 +171,13 @@ export interface PlaceholderChatItem {
 }
 
 export type AuthoredChatItem = TextChatItem | PaidChatItem | StickerChatItem | MembershipChatItem;
-export type ChatItem = AuthoredChatItem | GiftChatItem | DonationChatItem | EngagementChatItem | PlaceholderChatItem;
+export type ChatItem =
+  | AuthoredChatItem
+  | GiftChatItem
+  | DonationChatItem
+  | EngagementChatItem
+  | ModeChangeChatItem
+  | PlaceholderChatItem;
 
 export function isAuthored(item: ChatItem): item is AuthoredChatItem {
   return 'author' in item;

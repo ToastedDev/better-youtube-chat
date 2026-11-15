@@ -320,7 +320,11 @@ export function parseItem(item: ChatItemRenderer): ChatItem | null {
     const label = textOf(button?.text);
     const href = endpointUrl(button?.navigationEndpoint);
     if (label && href) message.push({ type: 'text', text: ' ' }, { type: 'text', text: label, href });
-    return { kind: 'engagement', id: r.id, message };
+    return { kind: 'engagement', id: r.id, message, icon: r.icon?.iconType };
+  }
+  if (item.liveChatModeChangeMessageRenderer) {
+    const r = item.liveChatModeChangeMessageRenderer;
+    return { kind: 'mode-change', id: r.id, text: parseText(r.text), subtext: parseText(r.subtext) };
   }
   if (import.meta.env.DEV) {
     for (const key of Object.keys(item)) {

@@ -79,6 +79,15 @@ export interface ButtonRenderer {
   navigationEndpoint?: NavigationEndpoint;
 }
 
+/** "Slow mode is on", "@channel turned on subscribers-only mode", and the matching "off" messages. */
+export interface LiveChatModeChangeMessageRenderer {
+  id: string;
+  timestampUsec?: string;
+  icon?: { iconType: string };
+  text?: FormattedText;
+  subtext?: FormattedText;
+}
+
 export interface LiveChatViewerEngagementMessageRenderer {
   id: string;
   timestampUsec?: string;
@@ -229,6 +238,7 @@ export interface ChatItemRenderer {
   liveChatSponsorshipsGiftPurchaseAnnouncementRenderer?: LiveChatSponsorshipsGiftPurchaseAnnouncementRenderer;
   liveChatSponsorshipsGiftRedemptionAnnouncementRenderer?: LiveChatSponsorshipsGiftRedemptionAnnouncementRenderer;
   liveChatDonationAnnouncementRenderer?: LiveChatDonationAnnouncementRenderer;
+  liveChatModeChangeMessageRenderer?: LiveChatModeChangeMessageRenderer;
   liveChatPlaceholderItemRenderer?: { id: string };
   giftMessageViewModel?: GiftMessageViewModel;
   [renderer: string]: unknown;
