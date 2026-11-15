@@ -206,6 +206,17 @@ Keys appear both URL-encoded (`…%3D`) and not, so compare them decoded.
   the same way opens YouTube's reply thread dialog, where replies are read and posted.
 - YouTube's own Like / Reply icons are blank (`imageName: ""`); we draw thumb-up / bubble icons.
 
+### Timestamps for everyone
+The chat header's ⋮ menu (`liveChatHeaderRenderer.overflowMenu.menuRenderer.items`, in
+`ytInitialData`) only has "Timestamps" for moderators. It's a
+`clientSideToggleMenuItemRenderer` (`menuItemIdentifier: "timestamp_toggle"`,
+`command: { toggleLiveChatTimestampsEndpoint: {} }`) that never contacts the server: YouTube toggles
+`hide-timestamps` on yt-live-chat-renderer and stores the choice in localStorage
+(`yt-live-chat::show-timestamps`). The bridge adds the same item for everyone before YouTube renders
+the header (before Reactions, where moderators have it). Verified as a viewer in the popout, the
+watch page's embedded chat and a replay: the toggle works, persists across reloads, and YouTube's
+own list and the pinned banner show timestamps too.
+
 ### Pinned message banner
 The banner stays native (`yt-live-chat-banner-manager` above the input), but our menu replaces
 its own (verified on a test stream):

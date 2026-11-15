@@ -95,6 +95,7 @@ export function installPageBridge(): void {
         const data = value as AnyRecord;
         const lcc = data?.continuationContents?.liveChatContinuation ?? data?.contents?.liveChatRenderer;
         rememberSeekTokens(lcc);
+        addTimestampsToggle(lcc);
         if (lcc?.actions?.length) {
           const actions = structuredClone(lcc.actions);
           const entities = structuredClone(entityMutations(data));
@@ -262,6 +263,36 @@ export function installPageBridge(): void {
   });
 
   post('page', { type: 'ready' });
+}
+
+/**
+ * YouTube's "Timestamps" item from the chat header's ⋮ menu, as moderators get it. It runs entirely
+ * in the page: YouTube toggles `hide-timestamps` on yt-live-chat-renderer (which our UI follows) and
+ * remembers the choice in localStorage (`yt-live-chat::show-timestamps`).
+ */
+const TIMESTAMPS_TOGGLE = {
+  clientSideToggleMenuItemRenderer: {
+    defaultText: { runs: [{ text: 'Timestamps' }] },
+    defaultIcon: { iconType: 'ACCESS_TIME' },
+    toggledText: { runs: [{ text: 'Timestamps' }] },
+    toggledIcon: { iconType: 'ACCESS_TIME' },
+    menuItemIdentifier: 'timestamp_toggle',
+    command: { toggleLiveChatTimestampsEndpoint: { hack: true } },
+  },
+};
+
+/**
+ * Viewers don't get the Timestamps item, only moderators do. Add it to the header menu before
+ * YouTube renders it, where moderators have it: before Reactions, or else before Send feedback.
+ */
+function addTimestampsToggle(lcc: AnyRecord | undefined): void {
+  const items = lcc?.header?.liveChatHeaderRenderer?.overflowMenu?.menuRenderer?.items;
+  if (!Array.isArray(items)) return;
+  const id = (item: AnyRecord) => item?.clientSideToggleMenuItemRenderer?.menuItemIdentifier;
+  if (items.some((item) => id(item) === 'timestamp_toggle')) return;
+  let index = items.findIndex((item) => id(item) === 'reactions_toggle');
+  if (index === -1) index = items.findIndex((item) => item?.menuNavigationItemRenderer?.navigationEndpoint?.userFeedbackEndpoint);
+  items.splice(index === -1 ? items.length : index, 0, structuredClone(TIMESTAMPS_TOGGLE));
 }
 
 /** Our UI's shadow host, while it's mounted and not in compare mode (see chat.content/index.ts). */
