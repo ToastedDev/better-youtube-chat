@@ -5,6 +5,7 @@
  *   the polling, auth, continuation tokens and reconnects.
  * - Answers RPCs from the UI that need the page's JS context or the youtube.com origin.
  */
+import { readNativeList, writeNativeList } from './settings';
 import { listen, post, type ChatPayload, type PageMessage, type RpcMap, type RpcMethod } from './protocol';
 import type { EntityMutation, LiveChatTextMessageRenderer, RawMenuItem } from './youtube/types';
 
@@ -96,6 +97,7 @@ export function installPageBridge(): void {
         const lcc = data?.continuationContents?.liveChatContinuation ?? data?.contents?.liveChatRenderer;
         rememberSeekTokens(lcc);
         addTimestampsToggle(lcc);
+        addListToggle(lcc);
         if (lcc?.actions?.length) {
           const actions = structuredClone(lcc.actions);
           const entities = structuredClone(entityMutations(data));
@@ -228,6 +230,28 @@ export function installPageBridge(): void {
     }
   };
   window.addEventListener('click', onBannerPointer, true);
+
+  // Our switch in the chat header menu (see addListToggle). YouTube keeps client-side switch states
+  // itself, by identifier, and doesn't track ours: set it whenever the menu opens, and flip the saved
+  // choice ourselves on a tap.
+  window.addEventListener(
+    'click',
+    (event) => {
+      const target = event.target instanceof Element ? event.target : null;
+      if (target?.closest('yt-live-chat-header-renderer')) {
+        // The menu renders its items after the click.
+        for (const delay of [0, 50, 150, 400]) setTimeout(syncListToggle, delay);
+        return;
+      }
+      const toggle = listToggleOf(target?.closest('yt-live-chat-toggle-renderer') ?? null);
+      if (!toggle) return;
+      const native = !readNativeList();
+      writeNativeList(native);
+      post('page', { type: 'native-list', native });
+      setTimeout(syncListToggle);
+    },
+    true,
+  );
   window.addEventListener('contextmenu', onBannerPointer, true);
 
   // Chat replay: the watch page posts `{ 'yt-player-video-progress': seconds }` into this frame a
@@ -293,6 +317,46 @@ function addTimestampsToggle(lcc: AnyRecord | undefined): void {
   let index = items.findIndex((item) => id(item) === 'reactions_toggle');
   if (index === -1) index = items.findIndex((item) => item?.menuNavigationItemRenderer?.navigationEndpoint?.userFeedbackEndpoint);
   items.splice(index === -1 ? items.length : index, 0, structuredClone(TIMESTAMPS_TOGGLE));
+}
+
+const LIST_TOGGLE_ID = 'better_yt_chat_list';
+
+/**
+ * Our switch between our message list and YouTube's, at the top of the chat header menu. It's a
+ * client-side toggle like Timestamps; the command is a no-op, and the click handler in
+ * installPageBridge applies the choice.
+ */
+function addListToggle(lcc: AnyRecord | undefined): void {
+  const items = lcc?.header?.liveChatHeaderRenderer?.overflowMenu?.menuRenderer?.items;
+  if (!Array.isArray(items)) return;
+  if (items.some((item) => item?.clientSideToggleMenuItemRenderer?.menuItemIdentifier === LIST_TOGGLE_ID)) return;
+  const renderer: AnyRecord = {
+    defaultText: { runs: [{ text: 'Better YouTube Chat' }] },
+    defaultIcon: { iconType: 'CHAT_BUBBLE' },
+    toggledText: { runs: [{ text: 'Better YouTube Chat' }] },
+    toggledIcon: { iconType: 'CHAT_BUBBLE' },
+    menuItemIdentifier: LIST_TOGGLE_ID,
+    command: { signalServiceEndpoint: { signal: 'CLIENT_SIGNAL', actions: [] } },
+  };
+  items.unshift({ clientSideToggleMenuItemRenderer: renderer });
+}
+
+function listToggleOf(el: Element | null): (HTMLElement & AnyRecord) | null {
+  const toggle = el as (HTMLElement & AnyRecord) | null;
+  const data = toggle && (toggle.data ?? toggle.polymerController?.data);
+  return data?.menuItemIdentifier === LIST_TOGGLE_ID ? toggle : null;
+}
+
+/** Show the saved choice on our menu switch (it can also change from the shortcut or another tab). */
+function syncListToggle(): void {
+  const on = !readNativeList();
+  for (const el of document.querySelectorAll('yt-live-chat-toggle-renderer')) {
+    const toggle = listToggleOf(el);
+    if (!toggle) continue;
+    (toggle.polymerController ?? toggle).isToggled = on;
+    const button = toggle.querySelector('tp-yt-paper-toggle-button') as AnyRecord | null;
+    if (button) button.checked = on;
+  }
 }
 
 /** Our UI's shadow host, while it's mounted and not in compare mode (see chat.content/index.ts). */

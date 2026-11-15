@@ -39,6 +39,8 @@ export type PageMessage =
   | { type: 'chat'; payload: ChatPayload }
   /** Chat replay: the video's current time, which the watch page posts into the chat frame. */
   | { type: 'progress'; seconds: number }
+  /** The viewer switched between our message list and YouTube's in the chat header menu. */
+  | { type: 'native-list'; native: boolean }
   /**
    * Open our context menu for a message YouTube renders itself (the pinned message banner). The
    * anchor fields are the same as `MenuTarget`'s.

@@ -217,6 +217,14 @@ the header (before Reactions, where moderators have it). Verified as a viewer in
 watch page's embedded chat and a replay: the toggle works, persists across reloads, and YouTube's
 own list and the pinned banner show timestamps too.
 
+### Our on/off switch in the chat menu
+Also a `clientSideToggleMenuItemRenderer` added to the header menu (first item), rendered as
+`yt-live-chat-toggle-renderer` with a `tp-yt-paper-toggle-button`. YouTube keeps client-side switch
+states itself by `menuItemIdentifier` and ignores `isToggled` for one it doesn't know (it renders
+off and doesn't flip on tap). So the bridge sets the element's `isToggled` and the button's
+`checked` when the header menu opens, flips the saved choice itself on a tap, and gives the item a
+no-op command (`signalServiceEndpoint` with no actions).
+
 ### Pinned message banner
 The banner stays native (`yt-live-chat-banner-manager` above the input), but our menu replaces
 its own (verified on a test stream):

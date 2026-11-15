@@ -13,6 +13,8 @@ with a custom one. YouTube's own header, ticker, pinned message and input box st
 - Handles deleted/retracted messages, the viewer leaderboard chips and mention highlighting.
 - Your own messages show up as soon as you send them, like YouTube.
 - The chat menu's **Timestamps** toggle for everyone, not only moderators.
+- A **Better YouTube Chat** switch at the top of the chat menu (⋮ in the chat header) goes back to
+  YouTube's own message list and remembers the choice. Alt+Shift+N does the same.
 - For moderators: messages AutoMod held for review, with YouTube's Show / Hide buttons.
 - Super Chats, Super Stickers, new members, milestones, gifted memberships, Jewels gifts and
   fundraiser donations. YouTube's ticker, banners and gift animations stay native.
@@ -37,8 +39,9 @@ pnpm build    # production build in .output/chrome-mv3
 ```
 
 ### Comparing with YouTube's own list
-Press **Alt+Shift+N** in the chat to switch between our list and YouTube's native one (it keeps
-rendering hidden behind ours). Page CSS can't do this, because the shadow root's
+Turn off **Better YouTube Chat** in the chat menu, or press **Alt+Shift+N**, to switch between our
+list and YouTube's native one (it keeps rendering hidden behind ours, so switching is instant). The
+choice is saved in localStorage (`better-yt-chat::native-list`). Page CSS can't do this, because the shadow root's
 `:host { all: initial !important }` wins over it. While hidden, YouTube's list may hold back *new*
 messages, so compare the existing ones.
 

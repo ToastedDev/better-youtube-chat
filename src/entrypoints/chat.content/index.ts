@@ -4,6 +4,7 @@ import { PageBridge } from '@/lib/bridge';
 import { MenuState } from '@/lib/chat/menu-state.svelte';
 import { parseItem } from '@/lib/chat/parse';
 import { ChatStore } from '@/lib/chat/store.svelte';
+import { NATIVE_LIST_KEY, readNativeList, writeNativeList } from '@/lib/settings';
 import { NativeThemeSampler } from '@/lib/native-theme';
 import './style.css';
 
@@ -19,7 +20,7 @@ const DOCUMENT_CSS = `
   #item-list:has(> ${HOST_TAG}:not([data-native])) > yt-live-chat-item-list-renderer { display: none !important; }
 `;
 
-/** Alt+Shift+N in the chat toggles between our list and YouTube's, for comparing the two. */
+/** Alt+Shift+N in the chat switches between our list and YouTube's, like the chat menu's switch. */
 const isCompareShortcut = (e: KeyboardEvent) => e.altKey && e.shiftKey && e.code === 'KeyN';
 
 /**
@@ -55,9 +56,21 @@ export default defineContentScript({
   async main(ctx) {
     const store = new ChatStore();
     const menu = new MenuState();
+
+    // Our list or YouTube's: the "Better YouTube Chat" switch in the chat menu, saved in localStorage.
+    // YouTube's list keeps rendering behind ours, so switching is instant both ways.
+    let showNative = readNativeList();
+    let shadowHost: HTMLElement | undefined;
+    const setNative = (native: boolean) => {
+      showNative = native;
+      shadowHost?.toggleAttribute('data-native', native);
+      if (native) menu.target = null;
+    };
+
     const bridge = new PageBridge({
       onChat: (payload) => store.apply(payload),
       onProgress: (seconds) => store.setVideoTime(seconds),
+      onNativeList: setNative,
       onMenu: ({ renderer, x, y, alignRight, flipY }) => {
         const item = parseItem({ liveChatTextMessageRenderer: renderer });
         if (item?.kind === 'text') menu.target = { item, x, y, alignRight, flipY, fromBanner: true };
@@ -70,8 +83,6 @@ export default defineContentScript({
     document.head.append(style);
     ctx.onInvalidated(() => style.remove());
 
-    let showNative = false;
-
     const ui = await createShadowRootUi(ctx, {
       name: HOST_TAG,
       position: 'inline',
@@ -79,6 +90,7 @@ export default defineContentScript({
       anchor: ANCHOR,
       append: 'last',
       onMount: (container, _shadow, host) => {
+        shadowHost = host;
         host.toggleAttribute('data-native', showNative);
         const stopThemeSync = syncHostAttributes(host, () => theme.reset());
         theme.attach(host);
@@ -95,11 +107,18 @@ export default defineContentScript({
     const onKeydown = (e: KeyboardEvent) => {
       if (!isCompareShortcut(e)) return;
       e.preventDefault();
-      showNative = !showNative;
-      ui.shadowHost.toggleAttribute('data-native', showNative);
+      writeNativeList(!showNative);
+      setNative(!showNative);
     };
     window.addEventListener('keydown', onKeydown, true);
     ctx.onInvalidated(() => window.removeEventListener('keydown', onKeydown, true));
+
+    // Switched in another tab or frame (e.g. the popout and the watch page).
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === NATIVE_LIST_KEY) setNative(readNativeList());
+    };
+    window.addEventListener('storage', onStorage);
+    ctx.onInvalidated(() => window.removeEventListener('storage', onStorage));
 
     // WXT's autoMount only reacts to the anchor appearing/disappearing, but YouTube also empties
     // `#item-list` and re-creates its native list (e.g. when switching Top chat / Live chat), which

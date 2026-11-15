@@ -5,6 +5,8 @@ export interface PageBridgeHandlers {
   onChat: (payload: ChatPayload) => void;
   /** Chat replay: the video time. */
   onProgress: (seconds: number) => void;
+  /** The viewer chose YouTube's message list (true) or ours (false) in the chat menu. */
+  onNativeList: (native: boolean) => void;
   /** The pinned message banner asked for our context menu. */
   onMenu: (request: Extract<PageMessage, { type: 'menu' }>) => void;
 }
@@ -19,7 +21,7 @@ export class PageBridge {
   #nextId = 1;
   #pending = new Map<number, Pending>();
 
-  constructor({ onChat, onProgress, onMenu }: PageBridgeHandlers) {
+  constructor({ onChat, onProgress, onNativeList, onMenu }: PageBridgeHandlers) {
     listen('page', (msg) => {
       switch (msg.type) {
         case 'ready':
@@ -30,6 +32,9 @@ export class PageBridge {
           break;
         case 'progress':
           onProgress(msg.seconds);
+          break;
+        case 'native-list':
+          onNativeList(msg.native);
           break;
         case 'menu':
           onMenu(msg);
