@@ -206,6 +206,20 @@ Keys appear both URL-encoded (`…%3D`) and not, so compare them decoded.
   the same way opens YouTube's reply thread dialog, where replies are read and posted.
 - YouTube's own Like / Reply icons are blank (`imageName: ""`); we draw thumb-up / bubble icons.
 
+### Pinned message banner
+The banner stays native (`yt-live-chat-banner-manager` above the input), but our menu replaces
+its own (verified on a test stream):
+- `yt-live-chat-banner-renderer.data` is the `liveChatBannerRenderer`: `contents.liveChatTextMessageRenderer`
+  is the message, without `contextMenuEndpoint`. The banner's ⋮ is
+  `header.liveChatBannerHeaderRenderer.contextMenuButton.buttonRenderer.command.liveChatItemContextMenuEndpoint`,
+  whose menu has Unpin message (icon `KEEP_OFF`) plus the message's usual items (e.g. Remove).
+- The bridge catches `click` (on `#menu-button` or the author chip) and `contextmenu` in the
+  capture phase, and sends the message with the header's params to the UI, which opens our menu.
+  Other clicks on the banner (expand / collapse) and other banner types (polls, etc.) stay native,
+  as does everything in compare mode.
+- The banner collapses after `autoCollapseDelay` (7s) and expands on click; while it animates,
+  a click can land on `#banner-container` instead of the name.
+
 ### Sending messages (optimistic)
 YouTube shows a sent message before the server answers (verified on a test stream):
 - On send, the input dispatches a `yt-action` named `yt-add-live-chat-text-message-from-template-action`

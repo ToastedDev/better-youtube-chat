@@ -1,12 +1,12 @@
 <script lang="ts">
   import type { PageBridge } from '@/lib/bridge';
-  import type { MenuTarget } from '@/lib/chat/model';
+  import type { MenuState } from '@/lib/chat/menu-state.svelte';
   import type { ChatStore } from '@/lib/chat/store.svelte';
   import { setAppContext } from '@/lib/context';
   import ChatList from './ChatList.svelte';
   import ContextMenu from './ContextMenu.svelte';
 
-  let { store, bridge }: { store: ChatStore; bridge: PageBridge } = $props();
+  let { store, bridge, menu }: { store: ChatStore; bridge: PageBridge; menu: MenuState } = $props();
 
   setAppContext({
     get store() {
@@ -16,15 +16,13 @@
       return bridge;
     },
   });
-
-  let menu = $state.raw<MenuTarget | null>(null);
 </script>
 
 <div class="app">
-  <ChatList {store} menuItemId={menu?.item.id} onmenu={(target) => (menu = target)} />
-  {#if menu}
-    {#key menu}
-      <ContextMenu target={menu} {bridge} onclose={() => (menu = null)} />
+  <ChatList {store} menuItemId={menu.target?.fromBanner ? undefined : menu.target?.item.id} onmenu={(target) => (menu.target = target)} />
+  {#if menu.target}
+    {#key menu.target}
+      <ContextMenu target={menu.target} {bridge} onclose={() => (menu.target = null)} />
     {/key}
   {/if}
 </div>

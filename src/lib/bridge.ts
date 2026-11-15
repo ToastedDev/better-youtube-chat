@@ -1,5 +1,13 @@
 /** ISOLATED-world side of the bridge: receives chat payloads and calls page RPCs. */
-import { listen, post, type ChatPayload, type RpcMap, type RpcMethod } from './protocol';
+import { listen, post, type ChatPayload, type PageMessage, type RpcMap, type RpcMethod } from './protocol';
+
+export interface PageBridgeHandlers {
+  onChat: (payload: ChatPayload) => void;
+  /** Chat replay: the video time. */
+  onProgress: (seconds: number) => void;
+  /** The pinned message banner asked for our context menu. */
+  onMenu: (request: Extract<PageMessage, { type: 'menu' }>) => void;
+}
 
 interface Pending {
   resolve: (value: unknown) => void;
@@ -11,7 +19,7 @@ export class PageBridge {
   #nextId = 1;
   #pending = new Map<number, Pending>();
 
-  constructor(onChat: (payload: ChatPayload) => void, onProgress: (seconds: number) => void) {
+  constructor({ onChat, onProgress, onMenu }: PageBridgeHandlers) {
     listen('page', (msg) => {
       switch (msg.type) {
         case 'ready':
@@ -22,6 +30,9 @@ export class PageBridge {
           break;
         case 'progress':
           onProgress(msg.seconds);
+          break;
+        case 'menu':
+          onMenu(msg);
           break;
         case 'rpc-result': {
           const pending = this.#pending.get(msg.id);

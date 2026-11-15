@@ -4,7 +4,8 @@ A Chrome extension (Svelte 5 + [WXT](https://wxt.dev)) that replaces the message
 with a custom one. YouTube's own header, ticker, pinned message and input box stay as they are.
 
 - Looks like YouTube's chat and follows its light/dark theme (uses YouTube's own CSS variables).
-- Context menu on ⋮, right-click (Shift+right-click for the browser menu) or clicking a name:
+- Context menu on ⋮, right-click (Shift+right-click for the browser menu) or clicking a name, in the
+  list and on the pinned message:
   - **Go to channel**, for everyone (Ctrl/middle-click opens in a new tab)
   - **Mention**: inserts `@name` into the chat input
   - **Copy message**

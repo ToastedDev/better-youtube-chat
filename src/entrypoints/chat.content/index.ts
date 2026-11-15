@@ -1,6 +1,8 @@
 import { mount, unmount } from 'svelte';
 import App from '@/components/App.svelte';
 import { PageBridge } from '@/lib/bridge';
+import { MenuState } from '@/lib/chat/menu-state.svelte';
+import { parseItem } from '@/lib/chat/parse';
 import { ChatStore } from '@/lib/chat/store.svelte';
 import { NativeThemeSampler } from '@/lib/native-theme';
 import './style.css';
@@ -52,10 +54,15 @@ export default defineContentScript({
 
   async main(ctx) {
     const store = new ChatStore();
-    const bridge = new PageBridge(
-      (payload) => store.apply(payload),
-      (seconds) => store.setVideoTime(seconds),
-    );
+    const menu = new MenuState();
+    const bridge = new PageBridge({
+      onChat: (payload) => store.apply(payload),
+      onProgress: (seconds) => store.setVideoTime(seconds),
+      onMenu: ({ renderer, x, y, alignRight, flipY }) => {
+        const item = parseItem({ liveChatTextMessageRenderer: renderer });
+        if (item?.kind === 'text') menu.target = { item, x, y, alignRight, flipY, fromBanner: true };
+      },
+    });
     const theme = new NativeThemeSampler();
 
     const style = document.createElement('style');
@@ -75,7 +82,7 @@ export default defineContentScript({
         host.toggleAttribute('data-native', showNative);
         const stopThemeSync = syncHostAttributes(host, () => theme.reset());
         theme.attach(host);
-        const app = mount(App, { target: container, props: { store, bridge } });
+        const app = mount(App, { target: container, props: { store, bridge, menu } });
         return { app, stopThemeSync };
       },
       onRemove: (mounted) => {

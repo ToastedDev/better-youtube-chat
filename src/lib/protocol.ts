@@ -3,7 +3,13 @@
  * `fetch`) and the ISOLATED-world content script (which renders the Svelte UI).
  * Both live in the same `live_chat` frame, so they use `window.postMessage`.
  */
-import type { ChatAction, EntityMutation, InnertubeCommand, RawMenuItem } from './youtube/types';
+import type {
+  ChatAction,
+  EntityMutation,
+  InnertubeCommand,
+  LiveChatTextMessageRenderer,
+  RawMenuItem,
+} from './youtube/types';
 
 const CHANNEL_KEY = '__betterYtChat';
 
@@ -33,6 +39,11 @@ export type PageMessage =
   | { type: 'chat'; payload: ChatPayload }
   /** Chat replay: the video's current time, which the watch page posts into the chat frame. */
   | { type: 'progress'; seconds: number }
+  /**
+   * Open our context menu for a message YouTube renders itself (the pinned message banner). The
+   * anchor fields are the same as `MenuTarget`'s.
+   */
+  | { type: 'menu'; renderer: LiveChatTextMessageRenderer; x: number; y: number; alignRight?: boolean; flipY?: number }
   | { type: 'rpc-result'; id: number; ok: true; result: unknown }
   | { type: 'rpc-result'; id: number; ok: false; error: string };
 

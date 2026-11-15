@@ -5,7 +5,7 @@
  *   the polling, auth, continuation tokens and reconnects.
  * - Answers RPCs from the UI that need the page's JS context or the youtube.com origin.
  */
-import { listen, post, type ChatPayload, type RpcMap, type RpcMethod } from './protocol';
+import { listen, post, type ChatPayload, type PageMessage, type RpcMap, type RpcMethod } from './protocol';
 import type { EntityMutation, LiveChatTextMessageRenderer, RawMenuItem } from './youtube/types';
 
 /** Live chat polls, and the chunks of a past stream's chat replay (same response shape). */
@@ -211,6 +211,24 @@ export function installPageBridge(): void {
     },
   };
 
+  // The pinned message banner stays native, so its menu would be YouTube's (no "Go to channel" etc.).
+  // Open ours for it instead: on the banner's ⋮, the author's name, or a right-click. YouTube's items
+  // (Unpin, Report, …) still show in our menu, from the banner header's menu params.
+  const onBannerPointer = (event: MouseEvent) => {
+    try {
+      if (!connected || (event.type === 'contextmenu' && event.shiftKey)) return;
+      const request = bannerMenuRequest(event);
+      if (!request) return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      post('page', { type: 'menu', ...request });
+    } catch (err) {
+      console.error('[better-yt-chat] failed to open the banner menu', err);
+    }
+  };
+  window.addEventListener('click', onBannerPointer, true);
+  window.addEventListener('contextmenu', onBannerPointer, true);
+
   // Chat replay: the watch page posts `{ 'yt-player-video-progress': seconds }` into this frame a
   // few times a second (and once on load, even when paused). Listening here, from document_start,
   // means the UI gets the time even if it loads after that first message.
@@ -244,6 +262,41 @@ export function installPageBridge(): void {
   });
 
   post('page', { type: 'ready' });
+}
+
+/** Our UI's shadow host, while it's mounted and not in compare mode (see chat.content/index.ts). */
+const UI_HOST = 'better-yt-chat:not([data-native])';
+
+/**
+ * Our menu for a click in a pinned message banner (`yt-live-chat-banner-renderer` whose
+ * `contents` is a chat message), or undefined to leave the event to YouTube.
+ */
+function bannerMenuRequest(event: MouseEvent): Omit<Extract<PageMessage, { type: 'menu' }>, 'type'> | undefined {
+  const target = event.target instanceof Element ? event.target : null;
+  const banner = target?.closest('yt-live-chat-banner-renderer') as (HTMLElement & AnyRecord) | null;
+  if (!banner || !document.querySelector(UI_HOST)) return undefined;
+  const data: AnyRecord | undefined = banner.data ?? banner.polymerController?.data;
+  const message = data?.contents?.liveChatTextMessageRenderer;
+  if (!message?.authorExternalChannelId) return undefined;
+
+  let anchor: Element | null = null;
+  let alignRight = false;
+  if (event.type === 'click') {
+    anchor = target!.closest('#menu-button');
+    alignRight = !!anchor;
+    anchor ??= target!.closest('yt-live-chat-author-chip, #author-name');
+    if (!anchor) return undefined; // Other clicks expand / collapse the banner.
+  }
+
+  // The message itself has no menu params; the banner header's ⋮ has them (they include Unpin).
+  const params = data?.header?.liveChatBannerHeaderRenderer?.contextMenuButton?.buttonRenderer?.command
+    ?.liveChatItemContextMenuEndpoint?.params;
+  const renderer = structuredClone(message) as LiveChatTextMessageRenderer;
+  if (typeof params === 'string') renderer.contextMenuEndpoint = { liveChatItemContextMenuEndpoint: { params } };
+
+  if (!anchor) return { renderer, x: event.clientX, y: event.clientY };
+  const rect = anchor.getBoundingClientRect();
+  return { renderer, x: alignRight ? rect.right : rect.left, y: rect.bottom, alignRight, flipY: rect.top };
 }
 
 /**

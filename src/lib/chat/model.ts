@@ -207,4 +207,6 @@ export interface MenuTarget {
   alignRight?: boolean;
   /** Y to flip above when there's no room below (top of the ⋮ button). */
   flipY?: number;
+  /** Opened from YouTube's pinned message banner, not a row of our list (so no row highlight). */
+  fromBanner?: boolean;
 }
