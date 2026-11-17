@@ -53,7 +53,9 @@ export class NativeThemeSampler {
     if (this.#sampled.size === SAMPLES.length) return;
     for (const sample of SAMPLES) {
       if (this.#sampled.has(sample)) continue;
-      const el = document.querySelector(`yt-live-chat-item-list-renderer ${sample.selector}`);
+      // Text messages only: Super Chat, sticker and membership cards color names to suit the card
+      // (e.g. white on a sticker), so sampling one would recolor every name in the list.
+      const el = document.querySelector(`yt-live-chat-item-list-renderer yt-live-chat-text-message-renderer ${sample.selector}`);
       if (!el) continue;
       const style = getComputedStyle(el);
       for (const [name, prop] of Object.entries(sample.props)) {

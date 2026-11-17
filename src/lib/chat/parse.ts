@@ -12,6 +12,7 @@ import type {
   LiveChatPaidStickerRenderer,
   LiveChatSponsorshipsGiftPurchaseAnnouncementRenderer,
   LiveChatTextMessageRenderer,
+  LowerBumper,
   NavigationEndpoint,
   PdgLikeViewModel,
   PdgReplyButtonViewModel,
@@ -21,6 +22,7 @@ import type {
   Author,
   AutoModChatItem,
   Badge,
+  Bumper,
   ChatItem,
   Chip,
   CreatorHeart,
@@ -138,10 +140,12 @@ function parseAuthor(r: Omit<AuthorFields, 'authorExternalChannelId'>, channelId
 }
 
 /** The parts every authored item shares. */
-function authored(r: AuthorFields & { id: string; timestampUsec: string }) {
+function authored(r: AuthorFields & { id: string; timestampUsec: string; timestampText?: FormattedText }) {
   return {
     id: r.id,
     timestampUsec: r.timestampUsec,
+    // Chat replay: every authored item carries its video time, not just text messages.
+    timestampText: textOf(r.timestampText) || undefined,
     author: parseAuthor(r, r.authorExternalChannelId),
     menuParams: r.contextMenuEndpoint?.liveChatItemContextMenuEndpoint?.params,
     canModerate: !!r.inlineActionButtons?.length,
@@ -165,7 +169,6 @@ function parseTextMessage(r: LiveChatTextMessageRenderer): TextChatItem {
   return {
     kind: 'text',
     ...authored(r),
-    timestampText: textOf(r.timestampText) || undefined,
     message: parseText(r.message),
     chips,
     deleted: r.deletedStateMessage ? deletedState(r.deletedStateMessage, r.showOriginalContentMessage) : undefined,
@@ -278,7 +281,17 @@ function parsePaidSticker(r: LiveChatPaidStickerRenderer): StickerChatItem {
       amount: argbToCss(r.moneyChipTextColor),
       authorName: argbToCss(r.authorNameTextColor),
     },
+    overlay: bestThumbnail(r.headerOverlayImage),
+    bumper: parseBumper(r.lowerBumper),
   };
+}
+
+function parseBumper(raw?: LowerBumper): Bumper | undefined {
+  const content = raw?.liveChatItemBumperViewModel?.content?.bumperUserEduContentViewModel;
+  const text = content?.text?.content;
+  if (!text) return undefined;
+  const icon = content.image?.sources?.[0]?.clientResource;
+  return { text, icon: icon?.imageName, iconColor: argbToCss(icon?.imageColor) };
 }
 
 function parseMembership(r: LiveChatMembershipItemRenderer): MembershipChatItem {

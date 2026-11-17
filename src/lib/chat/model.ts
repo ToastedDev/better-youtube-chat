@@ -125,6 +125,17 @@ export interface StickerChatItem extends AuthoredBase {
   sticker: { src: string; label: string; width: number; height: number };
   v2: boolean;
   colors: { background?: string; amount?: string; authorName?: string };
+  /** The 1st Super's sparkle animation over the card's top-right corner. */
+  overlay?: string;
+  bumper?: Bumper;
+}
+
+/** The note under a Super's card, e.g. "Let's celebrate their 1st Super on a live stream". */
+export interface Bumper {
+  text: string;
+  /** A YouTube icon name, e.g. CELEBRATION. */
+  icon?: string;
+  iconColor?: string;
 }
 
 /** New member, membership milestone, or gifted memberships ("Gifted 5 memberships"). */

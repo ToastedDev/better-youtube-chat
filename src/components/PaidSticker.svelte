@@ -2,6 +2,7 @@
   import type { StickerChatItem } from '@/lib/chat/model';
   import { menuHandlers, type OpenMenu } from '@/lib/chat/menu';
   import Badges from './Badges.svelte';
+  import BumperNote from './Bumper.svelte';
   import DeletedText from './DeletedText.svelte';
   import MenuButton from './MenuButton.svelte';
 
@@ -45,8 +46,10 @@
         draggable="false"
       />
     {/if}
+    {#if item.overlay}<img class="overlay" src={item.overlay} alt="" draggable="false" />{/if}
     <MenuButton onclick={menu.button} />
   </div>
+  {#if item.bumper}<BumperNote bumper={item.bumper} />{/if}
 </div>
 
 <style>
@@ -63,28 +66,30 @@
   .card {
     position: relative;
     display: flex;
-    align-items: center;
-    padding: 8px 40px 8px 16px;
+    align-items: flex-start;
+    padding: 8px 8px 8px 16px;
     border-radius: 4px;
     color: #fff;
     font-size: 14px;
-    line-height: 20px;
     box-shadow: var(--bytc-card-shadow);
   }
   .card.v2 {
     border-radius: 12px;
   }
+  /* Like YouTube: the avatar at the top, the name and amount centered on a 40px line beside it. */
   .avatar {
     flex-shrink: 0;
-    width: 40px;
-    height: 40px;
+    width: 32px;
+    height: 32px;
     margin-right: 16px;
     border-radius: 50%;
   }
   .info {
     display: flex;
     flex-direction: column;
+    justify-content: center;
     min-width: 0;
+    min-height: 40px;
   }
   .name {
     font-weight: 500;
@@ -102,11 +107,19 @@
   .amount {
     font-size: 15px;
     font-weight: 500;
+    line-height: 18px;
   }
   .sticker {
     flex-shrink: 0;
     margin-left: auto;
     padding-left: 8px;
     object-fit: contain;
+  }
+  .overlay {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 146px;
+    pointer-events: none;
   }
 </style>

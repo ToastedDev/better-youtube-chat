@@ -31,7 +31,7 @@
   oncontextmenu={menu.contextmenu}
 >
   <div class="card">
-    <div class="header" class:only={!hasContent}>
+    <div class="header" class:only={!hasContent} class:gift={!!item.image}>
       {#if item.author.photo}<img class="avatar" src={item.author.photo} alt="" loading="lazy" draggable="false" />{/if}
       <div class="header-content" class:small={hasPrimary}>
         <span class="name"
@@ -125,11 +125,35 @@
   .small .subtext {
     font-size: 12px;
   }
+  /* Gift purchases ("Sent 5 gift memberships"): the picture fills the card's right edge, top to
+     bottom, and the text is lighter than a milestone's (YouTube ignores the runs' bold here). */
+  .header.gift {
+    align-items: flex-start;
+    padding: 0 0 0 16px;
+  }
+  .gift .avatar {
+    margin: 8px 8px 0 0;
+  }
+  .gift .header-content {
+    padding: 8px 0;
+  }
+  .gift .name {
+    color: rgba(255, 255, 255, 0.7);
+    line-height: 20px;
+  }
+  .gift .primary {
+    margin-top: 4px;
+    font-weight: 400;
+    line-height: 18px;
+  }
+  .gift .primary :global(.bold) {
+    font-weight: inherit;
+  }
   .image {
     flex-shrink: 0;
-    height: 40px;
+    width: 104px;
+    height: 104px;
     margin-left: auto;
-    padding-left: 8px;
   }
   .content {
     padding: 8px 16px;

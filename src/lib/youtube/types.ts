@@ -194,6 +194,21 @@ export interface LiveChatPaidStickerRenderer extends AuthorFields {
   moneyChipTextColor?: number;
   authorNameTextColor?: number;
   isV2Style?: boolean;
+  /** The 1st Super's sparkle animation, laid over the card's top-right corner. */
+  headerOverlayImage?: Thumbnails;
+  lowerBumper?: LowerBumper;
+}
+
+/** The note under a Super's card, e.g. "Let's celebrate their 1st Super on a live stream". */
+export interface LowerBumper {
+  liveChatItemBumperViewModel?: {
+    content?: {
+      bumperUserEduContentViewModel?: {
+        text?: { content?: string };
+        image?: { sources?: { clientResource?: { imageName?: string; imageColor?: number } }[] };
+      };
+    };
+  };
 }
 
 export interface LiveChatMembershipItemRenderer extends AuthorFields {

@@ -317,6 +317,29 @@ video plays, and rebuilds the list from the timeline on a seek, a seek response,
 before the current time. Compared with YouTube's own list after playing, seeking forward, seeking
 back into loaded chat and seeking far back: same items, same order.
 
+### Stickers, milestones and gifted memberships
+Compared with YouTube's list on chat replays (the actions inside `replayChatItemAction` are the same
+as live, field for field, apart from replay's `timestampText`):
+- **Every authored item** carries `timestampText` in a replay, not just text messages. Membership,
+  Super Chat, sticker and redemption items also have a hidden `#timestamp` that YouTube's Timestamps
+  toggle shows in `--yt-live-chat-tertiary-text-color` (gift purchases have none). We don't draw
+  timestamps on cards yet.
+- **Super Sticker:** card `padding: 8px 8px 8px 16px`, items aligned to the top; 32px avatar with a
+  16px gap; name 14px/500 and amount 15px/18px/500 centered on a 40px line; the sticker at the right
+  edge. A viewer's **1st Super** adds `headerOverlayImage` (a 146px sparkle animation over the card's
+  top-right corner) and `lowerBumper.liveChatItemBumperViewModel` (a note under the card: 8px gap,
+  `padding: 12px 16px`, 4px radius, `rgba(0,0,0,.1)`, 12px/18px, with a 24px `CELEBRATION` icon in
+  the bumper's `imageColor`).
+- **Gift purchase:** the 104×104 picture fills the card's right edge; 40px avatar with an 8px gap;
+  name 14px/20px/500 at 70% white; "Sent N … gift memberships" 14px/18px at weight 400 (the runs say
+  bold, YouTube doesn't draw it).
+- **Milestones** (with and without a message; the empty one has `empty: true`) and **new members**
+  already matched.
+- Our theme sampler copied the member name color from the first `.member` author chip in YouTube's
+  list. On a sticker card that chip is white, which turned every member name white, so it now only
+  samples text messages.
+
 ## 7. Next steps
-- Verify stickers, milestones and gifted-membership announcements on a live stream.
+- Timestamps on cards (see above); Super Chats (`liveChatPaidMessageRenderer`) may carry the 1st
+  Super overlay and bumper too, unverified.
 - Settings (timestamps, font size, menu item toggles), keyboard shortcuts, and virtualization if needed.
