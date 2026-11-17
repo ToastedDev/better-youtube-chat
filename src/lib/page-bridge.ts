@@ -5,6 +5,7 @@
  *   the polling, auth, continuation tokens and reconnects.
  * - Answers RPCs from the UI that need the page's JS context or the youtube.com origin.
  */
+import { wasSent } from './chat/send';
 import { readNativeList, writeNativeList } from './settings';
 import { listen, post, type ChatPayload, type PageMessage, type RpcMap, type RpcMethod } from './protocol';
 import type { EntityMutation, LiveChatTextMessageRenderer, RawMenuItem } from './youtube/types';
@@ -140,9 +141,9 @@ export function installPageBridge(): void {
   function settleSend(json: AnyRecord | undefined) {
     const clientId = pendingSends.shift();
     if (json) handleActionResponse(json);
-    const actions: AnyRecord[] = Array.isArray(json?.actions) ? json.actions : [];
-    const sent = actions.some((a) => a?.addChatItemAction?.clientId === clientId);
-    if (clientId && !sent) emit({ reset: false, actions: [{ dimChatItemAction: { clientAssignedId: clientId } }] });
+    if (clientId && !wasSent(json, clientId)) {
+      emit({ reset: false, actions: [{ dimChatItemAction: { clientAssignedId: clientId } }] });
+    }
   }
 
   function handleActionResponse(json: AnyRecord) {

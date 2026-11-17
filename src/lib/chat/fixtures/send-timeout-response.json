@@ -1,0 +1,42 @@
+{
+  "actions": [
+    {
+      "dimChatItemAction": {
+        "clientAssignedId": "client-1"
+      }
+    }
+  ],
+  "timeoutDurationUsec": "1440261094",
+  "errorMessage": {
+    "liveChatTextActionsErrorMessageRenderer": {
+      "errorText": {
+        "runs": [
+          {
+            "text": "You have been placed in timeout by the owner of this video or a moderator"
+          }
+        ]
+      },
+      "editMessageText": {
+        "runs": [
+          {
+            "text": "Edit and try again."
+          }
+        ]
+      },
+      "clickToDismissText": {
+        "runs": [
+          {
+            "text": "Dismiss"
+          }
+        ]
+      },
+      "originalRichMessage": {
+        "textSegments": [
+          {
+            "text": "timeout fixture"
+          }
+        ]
+      }
+    }
+  }
+}
