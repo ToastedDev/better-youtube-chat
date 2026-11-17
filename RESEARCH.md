@@ -339,11 +339,16 @@ as live, field for field, apart from replay's `timestampText`):
   bold, YouTube doesn't draw it).
 - **Milestones** (with and without a message; the empty one has `empty: true`) and **new members**
   already matched.
+- **Super Chats** carry the same 1st Super `headerOverlayImage` and `lowerBumper`. The overlay (a
+  130×48 animation) fills the header's top-right corner, under the creator heart. The heart sits
+  12px from the right edge, centered on the header, and the ⋮ appears just left of it (40px from the
+  edge). Whether it's hearted comes from an `engagementToolbarStateEntityPayload` with
+  `heartState: TOOLBAR_HEART_STATE_HEARTED`, sent with the item in replays too; Super Chats that
+  aren't hearted get the entity without `heartState`.
 - Our theme sampler copied the member name color from the first `.member` author chip in YouTube's
   list. On a sticker card that chip is white, which turned every member name white, so it now only
   samples text messages.
 
 ## 7. Next steps
-- Timestamps on cards (see above); Super Chats (`liveChatPaidMessageRenderer`) may carry the 1st
-  Super overlay and bumper too, unverified.
+- Timestamps on cards (see above).
 - Settings (timestamps, font size, menu item toggles), keyboard shortcuts, and virtualization if needed.

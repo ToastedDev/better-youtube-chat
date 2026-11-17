@@ -1,0 +1,226 @@
+{
+  "addChatItemAction": {
+    "item": {
+      "liveChatPaidMessageRenderer": {
+        "id": "item-1",
+        "timestampUsec": "1734240867193101",
+        "authorName": {
+          "simpleText": "@viewer1"
+        },
+        "authorPhoto": {
+          "thumbnails": [
+            {
+              "url": "https://yt3.ggpht.com/placeholder-1",
+              "width": 32,
+              "height": 32
+            },
+            {
+              "url": "https://yt3.ggpht.com/placeholder-2",
+              "width": 64,
+              "height": 64
+            }
+          ]
+        },
+        "purchaseAmountText": {
+          "simpleText": "NT$7,500.00"
+        },
+        "message": {
+          "runs": [
+            {
+              "text": "Example Super Chat message"
+            }
+          ]
+        },
+        "headerBackgroundColor": 4291821568,
+        "headerTextColor": 4294967295,
+        "bodyBackgroundColor": 4293271831,
+        "bodyTextColor": 4294967295,
+        "authorExternalChannelId": "UC_channel_1",
+        "authorNameTextColor": 3019898879,
+        "contextMenuEndpoint": {
+          "commandMetadata": {
+            "webCommandMetadata": {
+              "ignoreNavigation": true
+            }
+          },
+          "liveChatItemContextMenuEndpoint": {
+            "params": "OPAQUE"
+          }
+        },
+        "timestampColor": 2164260863,
+        "contextMenuAccessibility": {
+          "accessibilityData": {
+            "label": "Chat actions"
+          }
+        },
+        "timestampText": {
+          "simpleText": "1:03:13"
+        },
+        "headerOverlayImage": {
+          "thumbnails": [
+            {
+              "url": "https://yt3.ggpht.com/placeholder-3",
+              "width": 130,
+              "height": 48
+            }
+          ]
+        },
+        "authorBadges": [
+          {
+            "liveChatAuthorBadgeRenderer": {
+              "customThumbnail": {
+                "thumbnails": [
+                  {
+                    "url": "https://yt3.ggpht.com/placeholder-4",
+                    "width": 16,
+                    "height": 16
+                  },
+                  {
+                    "url": "https://yt3.ggpht.com/placeholder-5",
+                    "width": 32,
+                    "height": 32
+                  }
+                ]
+              },
+              "tooltip": "New member",
+              "accessibility": {
+                "accessibilityData": {
+                  "label": "New member"
+                }
+              }
+            }
+          }
+        ],
+        "textInputBackgroundColor": 805306368,
+        "lowerBumper": {
+          "liveChatItemBumperViewModel": {
+            "content": {
+              "bumperUserEduContentViewModel": {
+                "text": {
+                  "content": "Let's celebrate their 1st Super on a live stream",
+                  "styleRuns": [
+                    {
+                      "startIndex": 0,
+                      "length": 48
+                    }
+                  ]
+                },
+                "image": {
+                  "sources": [
+                    {
+                      "clientResource": {
+                        "imageName": "CELEBRATION",
+                        "imageColor": 4294901760
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "pdgPurchasedBumperLoggingDirectives": {}
+          }
+        },
+        "creatorHeartButton": {
+          "creatorHeartViewModel": {
+            "creatorThumbnail": {
+              "sources": [
+                {
+                  "url": "https://yt3.ggpht.com/placeholder-6"
+                }
+              ]
+            },
+            "heartedIcon": {
+              "sources": [
+                {
+                  "clientResource": {
+                    "imageName": "full_heart-filled"
+                  }
+                }
+              ]
+            },
+            "unheartedIcon": {
+              "sources": [
+                {
+                  "clientResource": {
+                    "imageName": "full_heart"
+                  }
+                }
+              ],
+              "processor": {
+                "borderImageProcessor": {
+                  "imageTint": {
+                    "color": 4294967295
+                  }
+                }
+              }
+            },
+            "heartedHoverText": "❤ by @viewer2",
+            "heartedAccessibilityLabel": "Remove heart",
+            "unheartedAccessibilityLabel": "Heart",
+            "engagementStateKey": "entity-1",
+            "gradient": {
+              "sources": [
+                {
+                  "url": "OPAQUE"
+                }
+              ],
+              "processor": {
+                "borderImageProcessor": {
+                  "imageTint": {
+                    "color": 4293271831
+                  }
+                }
+              }
+            }
+          }
+        },
+        "isV2Style": true,
+        "pdgPurchasedNoveltyLoggingDirectives": {},
+        "replyButton": {
+          "pdgReplyButtonViewModel": {
+            "replyButton": {
+              "buttonViewModel": {
+                "iconName": "CHAT",
+                "onTap": {
+                  "innertubeCommand": {
+                    "showEngagementPanelEndpoint": {
+                      "identifier": {
+                        "surface": "ENGAGEMENT_PANEL_SURFACE_LIVE_CHAT",
+                        "tag": "PAreply_thread"
+                      },
+                      "globalConfiguration": {
+                        "params": "OPAQUE"
+                      },
+                      "engagementPanelPresentationConfigs": {
+                        "engagementPanelPopupPresentationConfig": {
+                          "popupType": "PANEL_POPUP_TYPE_DIALOG"
+                        }
+                      }
+                    }
+                  }
+                },
+                "accessibilityText": "Reply",
+                "style": "BUTTON_VIEW_MODEL_STYLE_CUSTOM",
+                "type": "BUTTON_VIEW_MODEL_TYPE_TONAL",
+                "buttonSize": "BUTTON_VIEW_MODEL_SIZE_XSMALL",
+                "customBackgroundColor": 452984831,
+                "customFontColor": 4294967295
+              }
+            },
+            "replyCountEntityKey": "entity-2",
+            "replyCountPlaceholder": {
+              "content": "Reply",
+              "styleRuns": [
+                {
+                  "startIndex": 0,
+                  "length": 5
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "clientId": "item-2"
+  }
+}

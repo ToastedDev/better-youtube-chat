@@ -86,6 +86,9 @@ export interface PaidChatItem extends AuthoredBase {
   like?: LikeButton;
   reply?: ReplyButton;
   heart?: CreatorHeart;
+  /** The 1st Super's animation over the header's top-right corner. */
+  overlay?: string;
+  bumper?: Bumper;
 }
 
 /** Shown when the creator hearted the Super Chat (an entity keyed by `stateKey` says so). */
@@ -125,7 +128,7 @@ export interface StickerChatItem extends AuthoredBase {
   sticker: { src: string; label: string; width: number; height: number };
   v2: boolean;
   colors: { background?: string; amount?: string; authorName?: string };
-  /** The 1st Super's sparkle animation over the card's top-right corner. */
+  /** The 1st Super's animation over the card's top-right corner. */
   overlay?: string;
   bumper?: Bumper;
 }

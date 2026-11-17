@@ -180,6 +180,9 @@ export interface LiveChatPaidMessageRenderer extends AuthorFields {
   pdgLikeButton?: { pdgLikeViewModel?: PdgLikeViewModel };
   replyButton?: { pdgReplyButtonViewModel?: PdgReplyButtonViewModel };
   creatorHeartButton?: { creatorHeartViewModel?: CreatorHeartViewModel };
+  /** The 1st Super's animation, laid over the header's top-right corner. */
+  headerOverlayImage?: Thumbnails;
+  lowerBumper?: LowerBumper;
 }
 
 export interface LiveChatPaidStickerRenderer extends AuthorFields {

@@ -1,6 +1,11 @@
 import { describe, expect, test } from 'vitest';
-import type { ChatAction } from '../youtube/types';
+import type { ChatAction, EntityMutation } from '../youtube/types';
+import type { ChatItem } from './model';
 import { ChatStore } from './store.svelte';
+import paidFirstSuperEntities from './fixtures/paid-first-super-entities.json';
+import paidFirstSuper from './fixtures/paid-first-super.json';
+import paidNotHeartedEntities from './fixtures/paid-not-hearted-entities.json';
+import paidNotHearted from './fixtures/paid-not-hearted.json';
 import automod from './fixtures/automod.json';
 import automodShown from './fixtures/automod-shown.json';
 import markDeleted from './fixtures/mark-deleted.json';
@@ -120,6 +125,36 @@ describe('moderation actions (real samples)', () => {
       ['item-6', 'sticker'],
       ['after', 'text'],
     ]);
+  });
+});
+
+describe('entities (real samples)', () => {
+  const heartState = (store: ChatStore, item: ChatItem | undefined) =>
+    (item?.kind === 'paid' &&
+      (store.entity(item.heart?.stateKey)?.engagementToolbarStateEntityPayload as { heartState?: string } | undefined)
+        ?.heartState) ||
+    undefined;
+
+  test('a creator heart comes as an entity next to the Super Chat', () => {
+    const store = new ChatStore();
+    store.apply({
+      reset: true,
+      actions: [paidFirstSuper as ChatAction, paidNotHearted as ChatAction],
+      entities: [...paidFirstSuperEntities, ...paidNotHeartedEntities] as EntityMutation[],
+    });
+    expect(heartState(store, store.items[0])).toBe('TOOLBAR_HEART_STATE_HEARTED');
+    expect(heartState(store, store.items[1])).toBeUndefined();
+  });
+
+  test('entity keys match whether or not they are URL-encoded', () => {
+    const store = new ChatStore();
+    store.apply({
+      reset: true,
+      actions: [],
+      entities: [{ entityKey: 'abc%3D', type: 'ENTITY_MUTATION_TYPE_REPLACE', payload: { x: 1 } }] as EntityMutation[],
+    });
+    expect(store.entity('abc=')).toEqual({ x: 1 });
+    expect(store.entity('abc%3D')).toEqual({ x: 1 });
   });
 });
 

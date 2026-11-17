@@ -1,0 +1,234 @@
+{
+  "addChatItemAction": {
+    "item": {
+      "liveChatPaidMessageRenderer": {
+        "id": "item-3",
+        "timestampUsec": "1734240367533183",
+        "authorName": {
+          "simpleText": "@viewer3"
+        },
+        "authorPhoto": {
+          "thumbnails": [
+            {
+              "url": "https://yt3.ggpht.com/placeholder-7",
+              "width": 32,
+              "height": 32
+            },
+            {
+              "url": "https://yt3.ggpht.com/placeholder-8",
+              "width": 64,
+              "height": 64
+            }
+          ]
+        },
+        "purchaseAmountText": {
+          "simpleText": "NT$250.00"
+        },
+        "message": {
+          "runs": [
+            {
+              "text": "Example Super Chat message"
+            },
+            {
+              "emoji": {
+                "emojiId": "😆",
+                "shortcuts": [
+                  ":grinning_squinting_face:",
+                  ":laughing:",
+                  ":satisfied:",
+                  "XD"
+                ],
+                "searchTerms": [
+                  "grinning",
+                  "squinting",
+                  "face",
+                  "laughing",
+                  "satisfied"
+                ],
+                "image": {
+                  "thumbnails": [
+                    {
+                      "url": "https://fonts.gstatic.com/s/e/notoemoji/15.1/1f606/72.png"
+                    }
+                  ],
+                  "accessibility": {
+                    "accessibilityData": {
+                      "label": "😆"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "emoji": {
+                "emojiId": "😆",
+                "shortcuts": [
+                  ":grinning_squinting_face:",
+                  ":laughing:",
+                  ":satisfied:",
+                  "XD"
+                ],
+                "searchTerms": [
+                  "grinning",
+                  "squinting",
+                  "face",
+                  "laughing",
+                  "satisfied"
+                ],
+                "image": {
+                  "thumbnails": [
+                    {
+                      "url": "https://fonts.gstatic.com/s/e/notoemoji/15.1/1f606/72.png"
+                    }
+                  ],
+                  "accessibility": {
+                    "accessibilityData": {
+                      "label": "😆"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "headerBackgroundColor": 4294947584,
+        "headerTextColor": 3741319168,
+        "bodyBackgroundColor": 4294953512,
+        "bodyTextColor": 3741319168,
+        "authorExternalChannelId": "UC_channel_2",
+        "authorNameTextColor": 2315255808,
+        "contextMenuEndpoint": {
+          "commandMetadata": {
+            "webCommandMetadata": {
+              "ignoreNavigation": true
+            }
+          },
+          "liveChatItemContextMenuEndpoint": {
+            "params": "OPAQUE"
+          }
+        },
+        "timestampColor": 2147483648,
+        "contextMenuAccessibility": {
+          "accessibilityData": {
+            "label": "Chat actions"
+          }
+        },
+        "timestampText": {
+          "simpleText": "54:54"
+        },
+        "authorBadges": [
+          {
+            "liveChatAuthorBadgeRenderer": {
+              "customThumbnail": {
+                "thumbnails": [
+                  {
+                    "url": "https://yt3.ggpht.com/placeholder-9",
+                    "width": 16,
+                    "height": 16
+                  },
+                  {
+                    "url": "https://yt3.ggpht.com/placeholder-10",
+                    "width": 32,
+                    "height": 32
+                  }
+                ]
+              },
+              "tooltip": "Member (2 months)",
+              "accessibility": {
+                "accessibilityData": {
+                  "label": "Member (2 months)"
+                }
+              }
+            }
+          }
+        ],
+        "textInputBackgroundColor": 822083583,
+        "creatorHeartButton": {
+          "creatorHeartViewModel": {
+            "creatorThumbnail": {
+              "sources": [
+                {
+                  "url": "https://yt3.ggpht.com/placeholder-6"
+                }
+              ]
+            },
+            "heartedIcon": {
+              "sources": [
+                {
+                  "clientResource": {
+                    "imageName": "full_heart-filled"
+                  }
+                }
+              ]
+            },
+            "unheartedIcon": {
+              "sources": [
+                {
+                  "clientResource": {
+                    "imageName": "full_heart"
+                  }
+                }
+              ],
+              "processor": {
+                "borderImageProcessor": {
+                  "imageTint": {
+                    "color": 3741319168
+                  }
+                }
+              }
+            },
+            "heartedHoverText": "❤ by @viewer2",
+            "heartedAccessibilityLabel": "Remove heart",
+            "unheartedAccessibilityLabel": "Heart",
+            "engagementStateKey": "entity-3"
+          }
+        },
+        "isV2Style": true,
+        "replyButton": {
+          "pdgReplyButtonViewModel": {
+            "replyButton": {
+              "buttonViewModel": {
+                "iconName": "CHAT",
+                "onTap": {
+                  "innertubeCommand": {
+                    "showEngagementPanelEndpoint": {
+                      "identifier": {
+                        "surface": "ENGAGEMENT_PANEL_SURFACE_LIVE_CHAT",
+                        "tag": "PAreply_thread"
+                      },
+                      "globalConfiguration": {
+                        "params": "OPAQUE"
+                      },
+                      "engagementPanelPresentationConfigs": {
+                        "engagementPanelPopupPresentationConfig": {
+                          "popupType": "PANEL_POPUP_TYPE_DIALOG"
+                        }
+                      }
+                    }
+                  }
+                },
+                "accessibilityText": "Reply",
+                "style": "BUTTON_VIEW_MODEL_STYLE_CUSTOM",
+                "type": "BUTTON_VIEW_MODEL_TYPE_TONAL",
+                "buttonSize": "BUTTON_VIEW_MODEL_SIZE_XSMALL",
+                "customBackgroundColor": 218103808,
+                "customFontColor": 3741319168
+              }
+            },
+            "replyCountEntityKey": "entity-4",
+            "replyCountPlaceholder": {
+              "content": "Reply",
+              "styleRuns": [
+                {
+                  "startIndex": 0,
+                  "length": 5
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "clientId": "item-4"
+  }
+}

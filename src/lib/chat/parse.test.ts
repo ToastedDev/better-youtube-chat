@@ -16,7 +16,9 @@ import linkLong from './fixtures/link-long.json';
 import linkYoutube from './fixtures/link-youtube.json';
 import memberNew from './fixtures/member-new.json';
 import modeChange from './fixtures/mode-change.json';
+import paidFirstSuper from './fixtures/paid-first-super.json';
 import paidLike from './fixtures/paid-like.json';
+import paidNotHearted from './fixtures/paid-not-hearted.json';
 import paidMessage from './fixtures/paid-message.json';
 import paidSticker from './fixtures/paid-sticker.json';
 import placeholder from './fixtures/placeholder.json';
@@ -79,6 +81,32 @@ describe('Super Chats', () => {
     expect(item.reply?.placeholder).toBe('Reply');
     expect(item.reply?.command.showEngagementPanelEndpoint).toBeDefined();
     expect(item.timestampText).toBe('10:26');
+  });
+});
+
+describe('Super Chats: 1st Super and creator heart', () => {
+  test('a 1st Super has the overlay and the note under the card', () => {
+    const item = parse(paidFirstSuper, 'paid');
+    expect(item.amount).toBe('NT$7,500.00');
+    expect(item.overlay).toBeTruthy();
+    expect(item.bumper).toEqual({
+      text: "Let's celebrate their 1st Super on a live stream",
+      icon: 'CELEBRATION',
+      iconColor: 'rgba(255, 0, 0, 1)',
+    });
+  });
+
+  test('the heart button points at its state entity', () => {
+    const item = parse(paidFirstSuper, 'paid');
+    expect(item.heart).toMatchObject({ stateKey: 'entity-1', label: '❤ by @viewer2' });
+    expect(item.heart?.thumbnail).toBeTruthy();
+  });
+
+  test('other Super Chats have neither extra', () => {
+    const item = parse(paidNotHearted, 'paid');
+    expect(item.overlay).toBeUndefined();
+    expect(item.bumper).toBeUndefined();
+    expect(item.heart?.stateKey).toBe('entity-3');
   });
 });
 

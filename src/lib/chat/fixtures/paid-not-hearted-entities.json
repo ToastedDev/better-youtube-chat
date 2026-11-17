@@ -1,0 +1,11 @@
+[
+  {
+    "entityKey": "entity-3",
+    "type": "ENTITY_MUTATION_TYPE_REPLACE",
+    "payload": {
+      "engagementToolbarStateEntityPayload": {
+        "key": "entity-3"
+      }
+    }
+  }
+]

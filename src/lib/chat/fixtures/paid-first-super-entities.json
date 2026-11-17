@@ -1,0 +1,12 @@
+[
+  {
+    "entityKey": "entity-1",
+    "type": "ENTITY_MUTATION_TYPE_REPLACE",
+    "payload": {
+      "engagementToolbarStateEntityPayload": {
+        "key": "entity-1",
+        "heartState": "TOOLBAR_HEART_STATE_HEARTED"
+      }
+    }
+  }
+]

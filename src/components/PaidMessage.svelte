@@ -4,6 +4,7 @@
   import { getAppContext } from '@/lib/context';
   import type { EngagementToolbarState } from '@/lib/youtube/types';
   import Badges from './Badges.svelte';
+  import BumperNote from './Bumper.svelte';
   import DeletedText from './DeletedText.svelte';
   import Icon from './Icon.svelte';
   import MenuButton from './MenuButton.svelte';
@@ -41,9 +42,11 @@
   <div class="card" class:v2={item.v2} style:background-color={item.colors.body}>
     <div
       class="header"
+      class:hearted={hearted && !!item.heart}
       style:background-color={item.v2 ? undefined : item.colors.header}
       style:color={item.colors.headerText}
     >
+      {#if item.overlay}<img class="overlay" src={item.overlay} alt="" draggable="false" />{/if}
       {#if item.author.photo}<img class="avatar" src={item.author.photo} alt="" loading="lazy" draggable="false" />{/if}
       <div class="header-content">
         <span class="name"
@@ -73,6 +76,7 @@
       </div>
     {/if}
   </div>
+  {#if item.bumper}<BumperNote bumper={item.bumper} />{/if}
 </div>
 
 <style>
@@ -102,11 +106,20 @@
     border-radius: 12px;
   }
   .header {
+    position: relative;
     display: flex;
     align-items: center;
     min-height: 20px;
     padding: 8px 40px 8px 16px;
     font-weight: 500;
+  }
+  /* The 1st Super's animation fills the header's top-right corner, under the heart. */
+  .overlay {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 100%;
+    pointer-events: none;
   }
   .avatar {
     flex-shrink: 0;
@@ -132,14 +145,19 @@
   .author:focus-visible {
     outline: 2px solid currentColor;
   }
-  /* The creator's avatar with a small heart, at the end of the header. */
+  /* The creator's avatar with a small heart, at the header's right edge; the ⋮ moves left of it. */
   .heart {
-    position: relative;
-    flex-shrink: 0;
-    margin-left: auto;
-    padding-left: 8px;
+    position: absolute;
+    z-index: 1;
+    top: 50%;
+    right: 12px;
+    transform: translateY(-50%);
     line-height: 0;
     color: #ff0033;
+  }
+  .header.hearted :global(.menu-button) {
+    top: 12px;
+    right: 40px;
   }
   .heart img {
     width: 24px;

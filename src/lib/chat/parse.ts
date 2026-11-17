@@ -222,6 +222,8 @@ function parsePaidMessage(r: LiveChatPaidMessageRenderer): PaidChatItem {
     like: parseLikeButton(r.pdgLikeButton?.pdgLikeViewModel),
     reply: parseReplyButton(r.replyButton?.pdgReplyButtonViewModel),
     heart: parseCreatorHeart(r.creatorHeartButton?.creatorHeartViewModel),
+    overlay: bestThumbnail(r.headerOverlayImage),
+    bumper: parseBumper(r.lowerBumper),
   };
 }
 
