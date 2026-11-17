@@ -269,9 +269,15 @@ YouTube shows a sent message before the server answers (verified on a test strea
   same. Custom emoji come from `yt-live-chat-renderer`'s `data.emojis`.
 - About 1s later the `send_message` response has `addChatItemAction { item, clientId }` with the
   real message. YouTube swaps it in for the local copy, and the next poll's copy is a duplicate by id.
-- On failure (e.g. a 400), YouTube keeps the message dimmed (`is-dimmed`: text at 25% opacity) with a
-  red bar (`show-bar`, `--yt-live-chat-error-message-color`) and shows "Error, try again." under the
-  input. We mark it with our own `bytcSendFailedAction` and draw the same.
+- On failure, YouTube keeps the message dimmed (`is-dimmed`: text at 25% opacity) with a red bar
+  (`show-bar`, `--yt-live-chat-error-message-color`) and shows an error under the input. Its list
+  dims on a `dimChatItemAction { clientAssignedId }`: the input fires one as `yt-dim-chat-item-action`
+  when the request fails (e.g. a 400, "Error, try again."). A refused send answers 200: for a viewer
+  in a timeout the response is `{ actions: [{ dimChatItemAction: { clientAssignedId } }],
+  timeoutDurationUsec, errorMessage }` (verified), and the input shows "You have been placed in
+  timeout…". We treat any response without an `addChatItemAction` for the copy as failed and apply
+  the same `dimChatItemAction`. We used to check only that the client id appeared anywhere in the
+  response, which that dim action satisfies, so a timed-out message wasn't dimmed.
 
 ### AutoMod (held for review)
 Moderators get `addChatItemAction.item.liveChatAutoModMessageRenderer` (verified on a stream where

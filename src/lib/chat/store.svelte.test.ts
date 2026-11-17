@@ -55,7 +55,7 @@ describe('live chat', () => {
   test('a failed send is marked', () => {
     const store = new ChatStore();
     store.apply({ reset: true, actions: [withId(textEmoji, 'local-1')] });
-    store.apply({ reset: false, actions: [{ bytcSendFailedAction: { targetItemId: 'local-1' } }] });
+    store.apply({ reset: false, actions: [{ dimChatItemAction: { clientAssignedId: 'local-1' } }] });
     expect(store.items[0]).toMatchObject({ kind: 'text', sendFailed: true });
   });
 

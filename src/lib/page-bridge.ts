@@ -133,15 +133,16 @@ export function installPageBridge(): void {
   );
 
   /**
-   * A send finished. If the response doesn't replace the local copy, the send failed: YouTube keeps
-   * the message, dimmed with a red bar, and shows "Error, try again." under the input.
+   * A send finished. Unless the response has the real message for the local copy, the send failed:
+   * YouTube keeps the message, dimmed with a red bar, with an error under the input. A refused send
+   * (e.g. the viewer is in a timeout) still answers 200, with a `dimChatItemAction` for the copy.
    */
   function settleSend(json: AnyRecord | undefined) {
     const clientId = pendingSends.shift();
     if (json) handleActionResponse(json);
-    if (clientId && !JSON.stringify(json?.actions ?? []).includes(clientId)) {
-      emit({ reset: false, actions: [{ bytcSendFailedAction: { targetItemId: clientId } }] });
-    }
+    const actions: AnyRecord[] = Array.isArray(json?.actions) ? json.actions : [];
+    const sent = actions.some((a) => a?.addChatItemAction?.clientId === clientId);
+    if (clientId && !sent) emit({ reset: false, actions: [{ dimChatItemAction: { clientAssignedId: clientId } }] });
   }
 
   function handleActionResponse(json: AnyRecord) {

@@ -193,8 +193,8 @@ function applyAction(items: ChatItem[], action: ChatAction): void {
     if (item && isAuthored(item)) items[index] = { ...item, deleted: deletedState(deletedStateMessage, showOriginalContentMessage) };
     return;
   }
-  if (action.bytcSendFailedAction) {
-    const index = items.findIndex((i) => i.id === action.bytcSendFailedAction!.targetItemId);
+  if (action.dimChatItemAction) {
+    const index = items.findIndex((i) => i.id === action.dimChatItemAction!.clientAssignedId);
     const item = items[index];
     if (item?.kind === 'text') items[index] = { ...item, sendFailed: true };
     return;

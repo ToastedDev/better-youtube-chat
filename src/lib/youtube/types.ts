@@ -310,8 +310,12 @@ export interface ChatAction {
   };
   removeChatItemByAuthorAction?: { externalChannelId: string };
   replaceChatItemAction?: { targetItemId: string; replacementItem: ChatItemRenderer };
-  /** Ours, not YouTube's: sending the message with this (client) id failed. */
-  bytcSendFailedAction?: { targetItemId: string };
+  /**
+   * Sending the viewer's message with this client id failed: YouTube dims it with a red bar. It
+   * comes in the send_message response (e.g. when the viewer is in a timeout) or from the input
+   * when the request itself fails.
+   */
+  dimChatItemAction?: { clientAssignedId?: string };
   /** Chat replay of a past stream: actions to run when the video reaches the offset. */
   replayChatItemAction?: { actions?: ChatAction[]; videoOffsetTimeMsec?: string };
   [action: string]: unknown;
