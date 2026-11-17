@@ -47,6 +47,9 @@
       style:color={item.colors.headerText}
     >
       {#if item.overlay}<img class="overlay" src={item.overlay} alt="" draggable="false" />{/if}
+      <!-- With a heart button, YouTube fades the header's right side into the card (wider on hover)
+           so the heart and ⋮ stand out over the 1st Super animation. -->
+      {#if item.heart}<span class="gradient" style:--card={item.colors.body}></span>{/if}
       {#if item.author.photo}<img class="avatar" src={item.author.photo} alt="" loading="lazy" draggable="false" />{/if}
       <div class="header-content">
         <span class="name"
@@ -120,6 +123,18 @@
     right: 0;
     height: 100%;
     pointer-events: none;
+  }
+  .gradient {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 100px;
+    height: 100%;
+    background: linear-gradient(to right, transparent, var(--card, #1565c0));
+    pointer-events: none;
+  }
+  .row:hover .gradient {
+    width: 150px;
   }
   .avatar {
     flex-shrink: 0;

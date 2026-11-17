@@ -90,11 +90,24 @@
     overflow-x: hidden;
     overflow-y: auto;
     overflow-anchor: none;
-    scrollbar-width: thin;
-    scrollbar-color: transparent transparent;
+    /* Like YouTube, always keep 12px for the scrollbar, so rows are as wide as YouTube's (and text
+       wraps at the same place) whether or not the list scrolls. */
+    scrollbar-gutter: stable;
   }
-  .scroller:hover {
-    scrollbar-color: var(--bytc-scrollbar) transparent;
+  .scroller::-webkit-scrollbar {
+    width: 12px;
+  }
+  .scroller::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .scroller::-webkit-scrollbar-thumb {
+    min-height: 30px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+    background-color: transparent;
+  }
+  .scroller:hover::-webkit-scrollbar-thumb {
+    background-color: var(--bytc-scrollbar);
   }
   .items {
     display: flex;
