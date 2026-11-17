@@ -237,6 +237,26 @@ describe('badges and chips', () => {
     expect(parse(textCanModerate, 'text').canModerate).toBe(true);
     expect(parse(textEmoji, 'text').canModerate).toBe(false);
   });
+
+  test('moderator quick actions', () => {
+    const actions = parse(textCanModerate, 'text').quickActions;
+    expect(actions.map((a) => [a.label, a.icon])).toEqual([
+      ['Remove', 'DELETE'],
+      ['Put user in timeout', 'HOURGLASS'],
+      ['Hide user on this channel', 'REMOVE_CIRCLE'],
+    ]);
+    expect(actions.every((a) => a.command.moderateLiveChatEndpoint)).toBe(true);
+    expect(parse(textEmoji, 'text').quickActions).toEqual([]);
+  });
+
+  test('AutoMod quick actions come from the outer renderer', () => {
+    const item = parse(automod, 'automod');
+    expect(item.quickActions.map((a) => a.label)).toEqual([
+      'Remove',
+      'Put user in timeout',
+      'Hide user on this channel',
+    ]);
+  });
 });
 
 describe('moderation', () => {

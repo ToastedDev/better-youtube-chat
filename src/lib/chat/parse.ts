@@ -5,6 +5,7 @@ import type {
   CreatorHeartViewModel,
   FormattedText,
   ImageSources,
+  InlineActionButton,
   InnertubeCommand,
   LiveChatAutoModMessageRenderer,
   LiveChatMembershipItemRenderer,
@@ -31,6 +32,7 @@ import type {
   LikeButton,
   MembershipChatItem,
   PaidChatItem,
+  QuickAction,
   ReplyButton,
   Segment,
   StickerChatItem,
@@ -148,8 +150,20 @@ function authored(r: AuthorFields & { id: string; timestampUsec: string; timesta
     timestampText: textOf(r.timestampText) || undefined,
     author: parseAuthor(r, r.authorExternalChannelId),
     menuParams: r.contextMenuEndpoint?.liveChatItemContextMenuEndpoint?.params,
-    canModerate: !!r.inlineActionButtons?.length,
+    ...moderation(r.inlineActionButtons),
   };
+}
+
+/** Quick actions, and whether the viewer can moderate the item at all. */
+function moderation(buttons?: InlineActionButton[]): { canModerate: boolean; quickActions: QuickAction[] } {
+  const quickActions: QuickAction[] = [];
+  for (const b of buttons ?? []) {
+    const r = b.buttonRenderer;
+    const command = r?.serviceEndpoint;
+    if (!command) continue;
+    quickActions.push({ label: r.tooltip ?? r.accessibility?.label ?? '', icon: r.icon?.iconType, command });
+  }
+  return { canModerate: !!buttons?.length, quickActions };
 }
 
 function parseTextMessage(r: LiveChatTextMessageRenderer): TextChatItem {
@@ -196,7 +210,7 @@ function parseAutoMod(r: LiveChatAutoModMessageRenderer): AutoModChatItem | null
     kind: 'automod',
     id: r.id,
     // The moderation quick actions sit on the outer renderer.
-    canModerate: message.canModerate || !!r.inlineActionButtons?.length,
+    ...(r.inlineActionButtons?.length ? moderation(r.inlineActionButtons) : {}),
     header: parseText(r.headerText),
     info: info?.navigationEndpoint
       ? { label: info.tooltip ?? 'More information', command: info.navigationEndpoint as InnertubeCommand }
@@ -315,7 +329,7 @@ function parseGiftPurchase(r: LiveChatSponsorshipsGiftPurchaseAnnouncementRender
     timestampUsec: r.timestampUsec,
     author: parseAuthor(header, r.authorExternalChannelId),
     menuParams: header.contextMenuEndpoint?.liveChatItemContextMenuEndpoint?.params,
-    canModerate: !!header.inlineActionButtons?.length,
+    ...moderation(header.inlineActionButtons),
     message: [],
     primary: parseText(header.primaryText),
     subtext: [],

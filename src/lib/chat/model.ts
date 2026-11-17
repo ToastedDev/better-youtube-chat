@@ -32,6 +32,14 @@ export interface Author {
   isVerified: boolean;
 }
 
+export interface QuickAction {
+  /** E.g. "Put user in timeout". */
+  label: string;
+  /** YouTube icon name: DELETE, HOURGLASS, REMOVE_CIRCLE. */
+  icon?: string;
+  command: InnertubeCommand;
+}
+
 export interface DeletedState {
   /** E.g. "Message deleted by @mod." or "[message retracted]". */
   text: string;
@@ -51,6 +59,8 @@ interface AuthoredBase {
   menuParams?: string;
   /** The viewer can moderate this message: clicking anywhere on it opens the menu, like YouTube. */
   canModerate: boolean;
+  /** Moderators only: Remove / timeout / hide, shown over the message while Alt is held. */
+  quickActions: QuickAction[];
   /** Set when the message was deleted by a moderator or retracted by its author. */
   deleted?: DeletedState;
 }

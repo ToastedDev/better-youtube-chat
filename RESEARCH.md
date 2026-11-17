@@ -292,6 +292,18 @@ the viewer is a moderator):
   with a 40px round icon button; the message at 50% opacity, italic; 40px tonal buttons
   (`rgba(0,0,0,.05)`, 20px radius, 14px/500) with an 8px gap, 64px from the left.
 
+### Moderator quick actions (hold Alt)
+Every message a moderator can act on carries `inlineActionButtons`: three `buttonRenderer`s with a
+`moderateLiveChatEndpoint` each, Remove (`DELETE`), Put user in timeout (`HOURGLASS`) and Hide user
+on this channel (`REMOVE_CIRCLE`). AutoMod items have them on the outer renderer, gift purchases on
+the header. While Alt is held, YouTube sets `moderation-mode-enabled` on its list; hovering a message
+then shows `#inline-action-button-container` over the row (`inset: -4px 0`, `rgba(0,0,0,.6)`) with
+the buttons centered, 24px white circles with 12px black icons, 8px apart, and hides the row's ⋮.
+None of them asks for confirmation. Tested on the test stream: Remove marks the message "Message
+deleted by @…"; a timeout marks the user's messages deleted; hiding a user shows YouTube's "This
+user's messages will be hidden" notice with Undo. We run the commands through `runCommand`, so
+YouTube handles the response.
+
 ### Chat replay (past streams)
 The chat frame is `/live_chat_replay?continuation=…` (our `live_chat*` match covers it). Verified on
 a 4h40m VOD:

@@ -81,9 +81,16 @@ export interface ButtonRenderer {
   text?: FormattedText;
   icon?: { iconType: string };
   tooltip?: string;
+  accessibility?: { label?: string };
   navigationEndpoint?: NavigationEndpoint;
   serviceEndpoint?: InnertubeCommand;
 }
+
+/**
+ * Moderators only: the quick actions YouTube shows over a message while Alt is held (Remove, Put
+ * user in timeout, Hide user on this channel), each a `moderateLiveChatEndpoint`.
+ */
+export type InlineActionButton = { buttonRenderer?: ButtonRenderer };
 
 /**
  * Moderators only: a message AutoMod held for review, with Show / Hide buttons. Either choice
@@ -99,7 +106,7 @@ export interface LiveChatAutoModMessageRenderer {
   infoDialogButton?: { buttonRenderer?: ButtonRenderer };
   moderationButtons?: { buttonRenderer?: ButtonRenderer }[];
   authorExternalChannelId?: string;
-  inlineActionButtons?: unknown[];
+  inlineActionButtons?: InlineActionButton[];
 }
 
 /** "Slow mode is on", "@channel turned on subscribers-only mode", and the matching "off" messages. */
@@ -127,7 +134,7 @@ export interface AuthorFields {
   authorBadges?: AuthorBadge[];
   contextMenuEndpoint?: { liveChatItemContextMenuEndpoint?: { params: string } };
   /** Present when the viewer can moderate (Remove / timeout / hide quick actions). */
-  inlineActionButtons?: unknown[];
+  inlineActionButtons?: InlineActionButton[];
 }
 
 /** Any innertube command, e.g. `{ liveChatActionEndpoint: {...} }`; run through YouTube's resolver. */

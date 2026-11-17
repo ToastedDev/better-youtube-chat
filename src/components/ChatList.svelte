@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { MenuTarget } from '@/lib/chat/model';
+  import { isAuthored, type MenuTarget } from '@/lib/chat/model';
   import type { ChatStore } from '@/lib/chat/store.svelte';
   import AutoModMessage from './AutoModMessage.svelte';
   import DonationMessage from './DonationMessage.svelte';
@@ -10,6 +10,7 @@
   import ModeChangeMessage from './ModeChangeMessage.svelte';
   import PaidMessage from './PaidMessage.svelte';
   import PaidSticker from './PaidSticker.svelte';
+  import QuickActions from './QuickActions.svelte';
   import TextMessage from './TextMessage.svelte';
 
   let {
@@ -42,6 +43,26 @@
     if (atBottom) scrollToBottom();
   });
 
+  /**
+   * Moderators: while Alt is held, hovering a message shows its quick actions (Remove, timeout,
+   * hide user) instead of the ⋮ button, like YouTube.
+   */
+  let moderating = $state(false);
+  $effect(() => {
+    const onkey = (e: KeyboardEvent) => {
+      if (e.key === 'Alt') moderating = e.type === 'keydown';
+    };
+    const off = () => (moderating = false);
+    window.addEventListener('keydown', onkey, true);
+    window.addEventListener('keyup', onkey, true);
+    window.addEventListener('blur', off);
+    return () => {
+      window.removeEventListener('keydown', onkey, true);
+      window.removeEventListener('keyup', onkey, true);
+      window.removeEventListener('blur', off);
+    };
+  });
+
   // Keep the bottom pinned when the frame resizes (theater mode, window resize, input panel growing).
   $effect(() => {
     const observer = new ResizeObserver(() => {
@@ -55,25 +76,29 @@
 <div class="scroller" bind:this={scroller} {onscroll}>
   <div class="items" role="list">
     {#each store.items as item (item.id)}
-      {#if item.kind === 'text'}
-        <TextMessage {item} viewerName={store.viewerName} menuOpen={item.id === menuItemId} {onmenu} />
-      {:else if item.kind === 'automod'}
-        <AutoModMessage {item} viewerName={store.viewerName} menuOpen={item.id === menuItemId} {onmenu} />
-      {:else if item.kind === 'paid'}
-        <PaidMessage {item} viewerName={store.viewerName} menuOpen={item.id === menuItemId} {onmenu} />
-      {:else if item.kind === 'sticker'}
-        <PaidSticker {item} menuOpen={item.id === menuItemId} {onmenu} />
-      {:else if item.kind === 'membership'}
-        <MembershipItem {item} viewerName={store.viewerName} menuOpen={item.id === menuItemId} {onmenu} />
-      {:else if item.kind === 'gift'}
-        <GiftMessage {item} />
-      {:else if item.kind === 'donation'}
-        <DonationMessage {item} />
-      {:else if item.kind === 'engagement'}
-        <EngagementMessage {item} />
-      {:else if item.kind === 'mode-change'}
-        <ModeChangeMessage {item} />
-      {/if}
+      {@const quick = moderating && isAuthored(item) && item.quickActions.length > 0}
+      <div class="slot" class:quick role="presentation">
+        {#if item.kind === 'text'}
+          <TextMessage {item} viewerName={store.viewerName} menuOpen={item.id === menuItemId} {onmenu} />
+        {:else if item.kind === 'automod'}
+          <AutoModMessage {item} viewerName={store.viewerName} menuOpen={item.id === menuItemId} {onmenu} />
+        {:else if item.kind === 'paid'}
+          <PaidMessage {item} viewerName={store.viewerName} menuOpen={item.id === menuItemId} {onmenu} />
+        {:else if item.kind === 'sticker'}
+          <PaidSticker {item} menuOpen={item.id === menuItemId} {onmenu} />
+        {:else if item.kind === 'membership'}
+          <MembershipItem {item} viewerName={store.viewerName} menuOpen={item.id === menuItemId} {onmenu} />
+        {:else if item.kind === 'gift'}
+          <GiftMessage {item} />
+        {:else if item.kind === 'donation'}
+          <DonationMessage {item} />
+        {:else if item.kind === 'engagement'}
+          <EngagementMessage {item} />
+        {:else if item.kind === 'mode-change'}
+          <ModeChangeMessage {item} />
+        {/if}
+        {#if quick && isAuthored(item)}<QuickActions actions={item.quickActions} />{/if}
+      </div>
     {/each}
   </div>
 </div>
@@ -108,6 +133,15 @@
   }
   .scroller:hover::-webkit-scrollbar-thumb {
     background-color: var(--bytc-scrollbar);
+  }
+  .slot {
+    position: relative;
+  }
+  .slot.quick:hover > :global(.quick-actions) {
+    display: flex;
+  }
+  .slot.quick:hover :global(.menu-button) {
+    visibility: hidden;
   }
   .items {
     display: flex;
