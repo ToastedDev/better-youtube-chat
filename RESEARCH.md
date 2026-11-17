@@ -183,6 +183,10 @@ popout falls back to a new tab.
   `title: "#2"`, `customBackgroundColor`/`customFontColor` as ARGB ints. Replies to a Super Chat use
   the same field for the "@name" chip: `iconName: MESSAGE`, `iconTrailing: true`, and an `onTap`
   that opens the reply thread.
+- Links in messages are runs with `navigationEndpoint.urlEndpoint` (`target: TARGET_NEW_WINDOW`,
+  `nofollow: true`). External links point to `youtube.com/redirect?event=…&redir_token=…&q=<url>`
+  (we link to the redirect as-is, like YouTube; `redir_token` is session-bound); YouTube links point
+  straight to the page, e.g. `/watch?v=…&t=…`. The run text is cut to 37 characters plus "...".
 
 ### Super Chat likes, replies and hearts (entity store)
 The renderer only holds keys; the values arrive as `frameworkUpdates.entityBatchUpdate.mutations`

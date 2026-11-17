@@ -11,6 +11,9 @@ import giftRedemption from './fixtures/gift-redemption.json';
 import memberMilestoneEmpty from './fixtures/member-milestone-empty.json';
 import memberMilestone from './fixtures/member-milestone.json';
 import jewelsGift from './fixtures/jewels-gift.json';
+import linkInline from './fixtures/link-inline.json';
+import linkLong from './fixtures/link-long.json';
+import linkYoutube from './fixtures/link-youtube.json';
 import memberNew from './fixtures/member-new.json';
 import modeChange from './fixtures/mode-change.json';
 import paidLike from './fixtures/paid-like.json';
@@ -137,6 +140,37 @@ describe('memberships', () => {
       { type: 'text', text: 'received a gift membership by ', italic: true },
       { type: 'text', text: '@viewer3', bold: true, italic: true },
     ]);
+  });
+});
+
+describe('links', () => {
+  /** The link segments of a fixture's message. */
+  const links = (fixture: unknown) =>
+    parse(fixture, 'text').message.filter((s) => s.type === 'text' && s.href) as { text: string; href: string }[];
+
+  test('external links go through YouTube’s redirect, with the full URL intact', () => {
+    const [link] = links(linkLong);
+    // YouTube shortens the text; the target keeps its path, query and hash.
+    expect(link!.text).toBe('https://example.com/some/long/path/th...');
+    const href = new URL(link!.href);
+    expect(href.origin + href.pathname).toBe('https://www.youtube.com/redirect');
+    expect(href.searchParams.get('q')).toBe('https://example.com/some/long/path/that-keeps-going?utm_source=test&q=a%20b#section');
+  });
+
+  test('YouTube links point straight at the video', () => {
+    const [link] = links(linkYoutube);
+    expect(link!.text).toBe('https://www.youtube.com/watch?v=dQw4w...');
+    expect(link!.href).toBe('https://www.youtube.com/watch?v=dQw4w9WgXcQ&t=348s');
+  });
+
+  test('text around a link stays separate', () => {
+    const item = parse(linkInline, 'text');
+    expect(item.message.map((s) => s.type === 'text' && [s.text, !!s.href])).toEqual([
+      ['text before ', false],
+      ['https://example.com', true],
+      [' text after', false],
+    ]);
+    expect(plainText(item.message)).toBe('text before https://example.com text after');
   });
 });
 
