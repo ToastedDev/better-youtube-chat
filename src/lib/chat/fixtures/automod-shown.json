@@ -1,0 +1,36 @@
+{
+  "replaceChatItemAction": {
+    "targetItemId": "item-1",
+    "replacementItem": {
+      "liveChatTextMessageRenderer": {
+        "message": {
+          "runs": [
+            {
+              "text": "Example message"
+            }
+          ]
+        },
+        "authorName": {
+          "simpleText": "@viewer1"
+        },
+        "authorPhoto": {
+          "thumbnails": [
+            {
+              "url": "https://yt3.ggpht.com/placeholder-1",
+              "width": 32,
+              "height": 32
+            },
+            {
+              "url": "https://yt3.ggpht.com/placeholder-2",
+              "width": 64,
+              "height": 64
+            }
+          ]
+        },
+        "id": "item-1",
+        "timestampUsec": "1794727179427057",
+        "authorExternalChannelId": "UC_channel_1"
+      }
+    }
+  }
+}

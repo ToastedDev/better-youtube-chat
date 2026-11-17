@@ -1,0 +1,69 @@
+{
+  "addChatItemAction": {
+    "item": {
+      "liveChatViewerEngagementMessageRenderer": {
+        "id": "item-13",
+        "icon": {
+          "iconType": "POLL"
+        },
+        "message": {
+          "runs": [
+            {
+              "text": "Example poll",
+              "bold": true
+            },
+            {
+              "text": "\n"
+            },
+            {
+              "text": "a (50%)"
+            },
+            {
+              "text": "\n"
+            },
+            {
+              "text": "b (50%)"
+            },
+            {
+              "text": "\n"
+            },
+            {
+              "text": "c (0%)"
+            },
+            {
+              "text": "\n"
+            },
+            {
+              "text": "d (0%)"
+            },
+            {
+              "text": "\n"
+            },
+            {
+              "text": "\n"
+            },
+            {
+              "text": "Poll complete: 2 votes"
+            }
+          ]
+        },
+        "contextMenuEndpoint": {
+          "commandMetadata": {
+            "webCommandMetadata": {
+              "ignoreNavigation": true
+            }
+          },
+          "liveChatItemContextMenuEndpoint": {
+            "params": "OPAQUE"
+          }
+        },
+        "contextMenuAccessibility": {
+          "accessibilityData": {
+            "label": "Chat actions"
+          }
+        }
+      }
+    },
+    "clientId": "item-14"
+  }
+}

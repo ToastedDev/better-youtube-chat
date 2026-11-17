@@ -1,0 +1,240 @@
+{
+  "addChatItemAction": {
+    "item": {
+      "liveChatPaidMessageRenderer": {
+        "id": "item-27",
+        "timestampUsec": "1794709095209927",
+        "authorName": {
+          "simpleText": "@viewer11"
+        },
+        "authorPhoto": {
+          "thumbnails": [
+            {
+              "url": "https://yt3.ggpht.com/placeholder-18",
+              "width": 32,
+              "height": 32
+            },
+            {
+              "url": "https://yt3.ggpht.com/placeholder-19",
+              "width": 64,
+              "height": 64
+            }
+          ]
+        },
+        "purchaseAmountText": {
+          "simpleText": "$4.99"
+        },
+        "message": {
+          "runs": [
+            {
+              "text": "Example message"
+            }
+          ]
+        },
+        "headerBackgroundColor": 4278239141,
+        "headerTextColor": 4278190080,
+        "bodyBackgroundColor": 4280150454,
+        "bodyTextColor": 4278190080,
+        "authorExternalChannelId": "UC_channel_7",
+        "authorNameTextColor": 2315255808,
+        "contextMenuEndpoint": {
+          "commandMetadata": {
+            "webCommandMetadata": {
+              "ignoreNavigation": true
+            }
+          },
+          "liveChatItemContextMenuEndpoint": {
+            "params": "OPAQUE"
+          }
+        },
+        "timestampColor": 2147483648,
+        "contextMenuAccessibility": {
+          "accessibilityData": {
+            "label": "Chat actions"
+          }
+        },
+        "textInputBackgroundColor": 822083583,
+        "creatorHeartButton": {
+          "creatorHeartViewModel": {
+            "creatorThumbnail": {
+              "sources": [
+                {
+                  "url": "https://yt3.ggpht.com/placeholder-20"
+                }
+              ]
+            },
+            "heartedIcon": {
+              "sources": [
+                {
+                  "clientResource": {
+                    "imageName": "full_heart-filled"
+                  }
+                }
+              ]
+            },
+            "unheartedIcon": {
+              "sources": [
+                {
+                  "clientResource": {
+                    "imageName": "full_heart"
+                  }
+                }
+              ],
+              "processor": {
+                "borderImageProcessor": {
+                  "imageTint": {
+                    "color": 4278190080
+                  }
+                }
+              }
+            },
+            "heartedHoverText": "❤ by @viewer12",
+            "heartedAccessibilityLabel": "Remove heart",
+            "unheartedAccessibilityLabel": "Heart",
+            "engagementStateKey": "OPAQUE"
+          }
+        },
+        "isV2Style": true,
+        "pdgLikeButton": {
+          "pdgLikeViewModel": {
+            "likedIcon": {
+              "sources": [
+                {
+                  "clientResource": {
+                    "imageName": ""
+                  }
+                }
+              ]
+            },
+            "unlikedIcon": {
+              "sources": [
+                {
+                  "clientResource": {
+                    "imageName": ""
+                  }
+                }
+              ]
+            },
+            "likeCountEntityKey": "OPAQUE",
+            "engagementStateKey": "OPAQUE",
+            "likeCountPlaceholder": {
+              "content": "Like",
+              "styleRuns": [
+                {
+                  "startIndex": 0,
+                  "length": 4
+                }
+              ]
+            },
+            "toggleButton": {
+              "toggleButtonViewModel": {
+                "defaultButtonViewModel": {
+                  "buttonViewModel": {
+                    "iconName": "LIKE",
+                    "onTap": {
+                      "innertubeCommand": {
+                        "commandMetadata": {
+                          "webCommandMetadata": {
+                            "sendPost": true,
+                            "apiUrl": "OPAQUE"
+                          }
+                        },
+                        "liveChatActionEndpoint": {
+                          "params": "OPAQUE"
+                        }
+                      }
+                    },
+                    "accessibilityText": "Like",
+                    "style": "BUTTON_VIEW_MODEL_STYLE_CUSTOM",
+                    "type": "BUTTON_VIEW_MODEL_TYPE_TONAL",
+                    "buttonSize": "BUTTON_VIEW_MODEL_SIZE_XSMALL",
+                    "customBackgroundColor": 218103808,
+                    "customFontColor": 4278190080
+                  }
+                },
+                "toggledButtonViewModel": {
+                  "buttonViewModel": {
+                    "iconName": "LIKE",
+                    "onTap": {
+                      "innertubeCommand": {
+                        "commandMetadata": {
+                          "webCommandMetadata": {
+                            "sendPost": true,
+                            "apiUrl": "OPAQUE"
+                          }
+                        },
+                        "liveChatActionEndpoint": {
+                          "params": "OPAQUE"
+                        }
+                      }
+                    },
+                    "accessibilityText": "Unlike",
+                    "style": "BUTTON_VIEW_MODEL_STYLE_CUSTOM",
+                    "type": "BUTTON_VIEW_MODEL_TYPE_TONAL",
+                    "buttonSize": "BUTTON_VIEW_MODEL_SIZE_XSMALL",
+                    "customBackgroundColor": 218103808,
+                    "customFontColor": 4278190080
+                  }
+                },
+                "identifier": "OPAQUE"
+              }
+            },
+            "unlikeA11yText": {
+              "content": "Unlike",
+              "styleRuns": [
+                {
+                  "startIndex": 0,
+                  "length": 6
+                }
+              ]
+            }
+          }
+        },
+        "replyButton": {
+          "pdgReplyButtonViewModel": {
+            "replyButton": {
+              "buttonViewModel": {
+                "iconName": "CHAT",
+                "onTap": {
+                  "innertubeCommand": {
+                    "showEngagementPanelEndpoint": {
+                      "identifier": {
+                        "surface": "ENGAGEMENT_PANEL_SURFACE_LIVE_CHAT",
+                        "tag": "PAreply_thread"
+                      },
+                      "globalConfiguration": {
+                        "params": "OPAQUE"
+                      },
+                      "engagementPanelPresentationConfigs": {
+                        "engagementPanelPopupPresentationConfig": {
+                          "popupType": "PANEL_POPUP_TYPE_DIALOG"
+                        }
+                      }
+                    }
+                  }
+                },
+                "accessibilityText": "Reply",
+                "style": "BUTTON_VIEW_MODEL_STYLE_CUSTOM",
+                "type": "BUTTON_VIEW_MODEL_TYPE_TONAL",
+                "buttonSize": "BUTTON_VIEW_MODEL_SIZE_XSMALL",
+                "customBackgroundColor": 218103808,
+                "customFontColor": 4278190080
+              }
+            },
+            "replyCountEntityKey": "OPAQUE",
+            "replyCountPlaceholder": {
+              "content": "Reply",
+              "styleRuns": [
+                {
+                  "startIndex": 0,
+                  "length": 5
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "clientId": "item-28"
+  }
+}

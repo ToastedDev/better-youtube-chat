@@ -1,0 +1,45 @@
+{
+  "addChatItemAction": {
+    "item": {
+      "liveChatDonationAnnouncementRenderer": {
+        "id": "item-10",
+        "timestampUsec": "1794709020303286",
+        "text": {
+          "runs": [
+            {
+              "text": "Anonymous donated "
+            },
+            {
+              "text": "$50.00"
+            }
+          ]
+        },
+        "subtext": {
+          "runs": [
+            {
+              "text": "to "
+            },
+            {
+              "text": "Example Fundraiser"
+            }
+          ]
+        },
+        "authorPhoto": {
+          "thumbnails": [
+            {
+              "url": "https://yt3.ggpht.com/placeholder-7",
+              "width": 32,
+              "height": 32
+            },
+            {
+              "url": "https://yt3.ggpht.com/placeholder-7",
+              "width": 64,
+              "height": 64
+            }
+          ]
+        }
+      }
+    },
+    "clientId": "item-11"
+  }
+}

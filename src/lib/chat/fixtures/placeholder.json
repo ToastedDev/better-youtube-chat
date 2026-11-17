@@ -1,0 +1,11 @@
+{
+  "addChatItemAction": {
+    "item": {
+      "liveChatPlaceholderItemRenderer": {
+        "id": "item-6",
+        "timestampUsec": "1794690819155216"
+      }
+    },
+    "clientId": "item-7"
+  }
+}

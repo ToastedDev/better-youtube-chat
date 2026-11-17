@@ -1,0 +1,345 @@
+{
+  "addChatItemAction": {
+    "item": {
+      "liveChatAutoModMessageRenderer": {
+        "id": "item-1",
+        "timestampUsec": "1794727179427057",
+        "autoModeratedItem": {
+          "liveChatTextMessageRenderer": {
+            "message": {
+              "runs": [
+                {
+                  "text": "Example message"
+                }
+              ]
+            },
+            "authorName": {
+              "simpleText": "@viewer1"
+            },
+            "authorPhoto": {
+              "thumbnails": [
+                {
+                  "url": "https://yt3.ggpht.com/placeholder-1",
+                  "width": 32,
+                  "height": 32
+                },
+                {
+                  "url": "https://yt3.ggpht.com/placeholder-2",
+                  "width": 64,
+                  "height": 64
+                }
+              ]
+            },
+            "contextMenuEndpoint": {
+              "commandMetadata": {
+                "webCommandMetadata": {
+                  "ignoreNavigation": true
+                }
+              },
+              "liveChatItemContextMenuEndpoint": {
+                "params": "OPAQUE"
+              }
+            },
+            "id": "item-1",
+            "timestampUsec": "1794727179427057",
+            "authorExternalChannelId": "UC_channel_1",
+            "contextMenuAccessibility": {
+              "accessibilityData": {
+                "label": "Chat actions"
+              }
+            }
+          }
+        },
+        "headerText": {
+          "runs": [
+            {
+              "text": "This message is held for review."
+            }
+          ]
+        },
+        "infoDialogButton": {
+          "buttonRenderer": {
+            "style": "STYLE_DEFAULT",
+            "size": "SIZE_DEFAULT",
+            "isDisabled": false,
+            "icon": {
+              "iconType": "WARNING"
+            },
+            "navigationEndpoint": {
+              "liveChatDialogEndpoint": {
+                "content": {
+                  "liveChatDialogRenderer": {
+                    "title": {
+                      "runs": [
+                        {
+                          "text": "Potentially inappropriate messages are held for review"
+                        }
+                      ]
+                    },
+                    "dialogMessages": [
+                      {
+                        "runs": [
+                          {
+                            "text": "Chat messages held for review can be seen by you but are hidden from public view. You can make them public or keep them hidden by selecting Show or Hide."
+                          }
+                        ]
+                      },
+                      {
+                        "runs": [
+                          {
+                            "text": "Learn more",
+                            "navigationEndpoint": {
+                              "commandMetadata": {
+                                "webCommandMetadata": {
+                                  "url": "//support.google.com/youtube/answer/2524549?hl=en#hold",
+                                  "webPageType": "WEB_PAGE_TYPE_UNKNOWN",
+                                  "rootVe": 83769
+                                }
+                              },
+                              "urlEndpoint": {
+                                "url": "//support.google.com/youtube/answer/2524549?hl=en#hold",
+                                "target": "TARGET_NEW_WINDOW"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    ],
+                    "confirmButton": {
+                      "buttonRenderer": {
+                        "style": "STYLE_BLUE_TEXT",
+                        "size": "SIZE_DEFAULT",
+                        "isDisabled": false,
+                        "text": {
+                          "simpleText": "Got it"
+                        },
+                        "accessibility": {
+                          "label": "Got it"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "accessibility": {
+              "label": "More information"
+            },
+            "tooltip": "More information",
+            "accessibilityData": {
+              "accessibilityData": {
+                "label": "More information"
+              }
+            }
+          }
+        },
+        "moderationButtons": [
+          {
+            "buttonRenderer": {
+              "style": "STYLE_DEFAULT",
+              "size": "SIZE_DEFAULT",
+              "isDisabled": false,
+              "text": {
+                "simpleText": "Show"
+              },
+              "serviceEndpoint": {
+                "commandMetadata": {
+                  "webCommandMetadata": {
+                    "sendPost": true,
+                    "apiUrl": "OPAQUE"
+                  }
+                },
+                "moderateLiveChatEndpoint": {
+                  "params": "OPAQUE"
+                }
+              },
+              "accessibility": {
+                "label": "Show"
+              }
+            }
+          },
+          {
+            "buttonRenderer": {
+              "style": "STYLE_DEFAULT",
+              "size": "SIZE_DEFAULT",
+              "isDisabled": false,
+              "text": {
+                "simpleText": "Hide"
+              },
+              "serviceEndpoint": {
+                "commandMetadata": {
+                  "webCommandMetadata": {
+                    "sendPost": true,
+                    "apiUrl": "OPAQUE"
+                  }
+                },
+                "moderateLiveChatEndpoint": {
+                  "params": "OPAQUE"
+                }
+              },
+              "accessibility": {
+                "label": "Hide"
+              }
+            }
+          }
+        ],
+        "authorExternalChannelId": "UC_channel_1",
+        "inlineActionButtons": [
+          {
+            "buttonRenderer": {
+              "style": "STYLE_DEFAULT",
+              "size": "SIZE_DEFAULT",
+              "isDisabled": false,
+              "serviceEndpoint": {
+                "commandMetadata": {
+                  "webCommandMetadata": {
+                    "sendPost": true,
+                    "apiUrl": "OPAQUE"
+                  }
+                },
+                "moderateLiveChatEndpoint": {
+                  "params": "OPAQUE"
+                }
+              },
+              "icon": {
+                "iconType": "DELETE"
+              },
+              "accessibility": {
+                "label": "Remove"
+              },
+              "tooltip": "Remove",
+              "accessibilityData": {
+                "accessibilityData": {
+                  "label": "Remove"
+                }
+              }
+            }
+          },
+          {
+            "buttonRenderer": {
+              "style": "STYLE_DEFAULT",
+              "size": "SIZE_DEFAULT",
+              "isDisabled": false,
+              "serviceEndpoint": {
+                "commandMetadata": {
+                  "webCommandMetadata": {
+                    "sendPost": true,
+                    "apiUrl": "OPAQUE"
+                  }
+                },
+                "moderateLiveChatEndpoint": {
+                  "params": "OPAQUE"
+                }
+              },
+              "icon": {
+                "iconType": "HOURGLASS"
+              },
+              "accessibility": {
+                "label": "Put user in timeout"
+              },
+              "tooltip": "Put user in timeout",
+              "accessibilityData": {
+                "accessibilityData": {
+                  "label": "Put user in timeout"
+                }
+              }
+            }
+          },
+          {
+            "buttonRenderer": {
+              "style": "STYLE_DEFAULT",
+              "size": "SIZE_DEFAULT",
+              "isDisabled": false,
+              "serviceEndpoint": {
+                "commandMetadata": {
+                  "webCommandMetadata": {
+                    "sendPost": true,
+                    "apiUrl": "OPAQUE"
+                  }
+                },
+                "moderateLiveChatEndpoint": {
+                  "params": "OPAQUE"
+                }
+              },
+              "icon": {
+                "iconType": "REMOVE_CIRCLE"
+              },
+              "accessibility": {
+                "label": "Hide user on this channel"
+              },
+              "tooltip": "Hide user on this channel",
+              "accessibilityData": {
+                "accessibilityData": {
+                  "label": "Hide user on this channel"
+                }
+              }
+            }
+          }
+        ],
+        "additionalInlineActionButtons": [
+          {
+            "buttonRenderer": {
+              "style": "STYLE_DEFAULT",
+              "size": "SIZE_DEFAULT",
+              "isDisabled": false,
+              "serviceEndpoint": {
+                "commandMetadata": {
+                  "webCommandMetadata": {
+                    "sendPost": true,
+                    "apiUrl": "OPAQUE"
+                  }
+                },
+                "moderateLiveChatEndpoint": {
+                  "params": "OPAQUE"
+                }
+              },
+              "icon": {
+                "iconType": "VISIBILITY"
+              },
+              "accessibility": {
+                "label": "Show"
+              },
+              "tooltip": "Show",
+              "accessibilityData": {
+                "accessibilityData": {
+                  "label": "Show"
+                }
+              }
+            }
+          },
+          {
+            "buttonRenderer": {
+              "style": "STYLE_DEFAULT",
+              "size": "SIZE_DEFAULT",
+              "isDisabled": false,
+              "serviceEndpoint": {
+                "commandMetadata": {
+                  "webCommandMetadata": {
+                    "sendPost": true,
+                    "apiUrl": "OPAQUE"
+                  }
+                },
+                "moderateLiveChatEndpoint": {
+                  "params": "OPAQUE"
+                }
+              },
+              "icon": {
+                "iconType": "VISIBILITY_OFF"
+              },
+              "accessibility": {
+                "label": "Hide"
+              },
+              "tooltip": "Hide",
+              "accessibilityData": {
+                "accessibilityData": {
+                  "label": "Hide"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    "clientId": "item-2"
+  }
+}

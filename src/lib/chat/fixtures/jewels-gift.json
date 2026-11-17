@@ -1,0 +1,70 @@
+{
+  "addChatItemAction": {
+    "item": {
+      "giftMessageViewModel": {
+        "text": {
+          "content": "sent Go team!",
+          "styleRuns": [
+            {
+              "startIndex": 0,
+              "length": 13
+            }
+          ]
+        },
+        "authorName": {
+          "content": "@viewer3 ",
+          "styleRuns": [
+            {
+              "startIndex": 0,
+              "length": 12
+            }
+          ]
+        },
+        "id": "item-8",
+        "authorAvatar": {
+          "avatarViewModel": {
+            "image": {
+              "sources": [
+                {
+                  "url": "https://yt3.ggpht.com/placeholder-3",
+                  "width": 32,
+                  "height": 32
+                },
+                {
+                  "url": "https://yt3.ggpht.com/placeholder-4",
+                  "width": 64,
+                  "height": 64
+                }
+              ],
+              "processor": {
+                "borderImageProcessor": {
+                  "circular": true
+                }
+              }
+            },
+            "avatarImageSize": "AVATAR_SIZE_XS"
+          }
+        },
+        "giftImage": {
+          "sources": [
+            {
+              "url": "https://yt3.ggpht.com/placeholder-5",
+              "width": 480,
+              "height": 480
+            },
+            {
+              "url": "https://yt3.ggpht.com/placeholder-6",
+              "width": 640,
+              "height": 640
+            }
+          ]
+        },
+        "giftImageA11yLabel": "@viewer3 sent a gift, Go team!",
+        "rendererContext": {
+          "loggingContext": {}
+        }
+      }
+    },
+    "clientId": "item-9"
+  }
+}

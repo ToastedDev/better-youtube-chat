@@ -1,0 +1,34 @@
+{
+  "addChatItemAction": {
+    "item": {
+      "liveChatModeChangeMessageRenderer": {
+        "id": "item-15",
+        "timestampUsec": "1794716839803696",
+        "icon": {
+          "iconType": "SLOW_MODE"
+        },
+        "text": {
+          "runs": [
+            {
+              "text": "Slow mode is on",
+              "bold": true
+            }
+          ]
+        },
+        "subtext": {
+          "runs": [
+            {
+              "text": "Send a message every ",
+              "italics": true
+            },
+            {
+              "text": "1 minute",
+              "italics": true
+            }
+          ]
+        }
+      }
+    },
+    "clientId": "item-16"
+  }
+}

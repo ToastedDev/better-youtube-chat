@@ -1,0 +1,165 @@
+{
+  "replaceChatItemAction": {
+    "targetItemId": "item-3",
+    "replacementItem": {
+      "liveChatTextMessageRenderer": {
+        "message": {
+          "runs": [
+            {
+              "text": "Example message"
+            }
+          ]
+        },
+        "authorName": {
+          "simpleText": "@viewer1"
+        },
+        "authorPhoto": {
+          "thumbnails": [
+            {
+              "url": "https://yt3.ggpht.com/placeholder-1",
+              "width": 32,
+              "height": 32
+            },
+            {
+              "url": "https://yt3.ggpht.com/placeholder-2",
+              "width": 64,
+              "height": 64
+            }
+          ]
+        },
+        "contextMenuEndpoint": {
+          "commandMetadata": {
+            "webCommandMetadata": {
+              "ignoreNavigation": true
+            }
+          },
+          "liveChatItemContextMenuEndpoint": {
+            "params": "OPAQUE"
+          }
+        },
+        "id": "item-3",
+        "timestampUsec": "1794726986079752",
+        "authorExternalChannelId": "UC_channel_1",
+        "deletedStateMessage": {
+          "runs": [
+            {
+              "text": "Message automatically held for review, hidden by "
+            },
+            {
+              "text": "@viewer2",
+              "bold": true
+            },
+            {
+              "text": "."
+            }
+          ]
+        },
+        "showOriginalContentMessage": {
+          "runs": [
+            {
+              "text": "View deleted message",
+              "italics": true
+            }
+          ]
+        },
+        "contextMenuAccessibility": {
+          "accessibilityData": {
+            "label": "Chat actions"
+          }
+        },
+        "inlineActionButtons": [
+          {
+            "buttonRenderer": {
+              "style": "STYLE_DEFAULT",
+              "size": "SIZE_DEFAULT",
+              "isDisabled": false,
+              "serviceEndpoint": {
+                "commandMetadata": {
+                  "webCommandMetadata": {
+                    "sendPost": true,
+                    "apiUrl": "OPAQUE"
+                  }
+                },
+                "moderateLiveChatEndpoint": {
+                  "params": "OPAQUE"
+                }
+              },
+              "icon": {
+                "iconType": "DELETE"
+              },
+              "accessibility": {
+                "label": "Remove"
+              },
+              "tooltip": "Remove",
+              "accessibilityData": {
+                "accessibilityData": {
+                  "label": "Remove"
+                }
+              }
+            }
+          },
+          {
+            "buttonRenderer": {
+              "style": "STYLE_DEFAULT",
+              "size": "SIZE_DEFAULT",
+              "isDisabled": false,
+              "serviceEndpoint": {
+                "commandMetadata": {
+                  "webCommandMetadata": {
+                    "sendPost": true,
+                    "apiUrl": "OPAQUE"
+                  }
+                },
+                "moderateLiveChatEndpoint": {
+                  "params": "OPAQUE"
+                }
+              },
+              "icon": {
+                "iconType": "HOURGLASS"
+              },
+              "accessibility": {
+                "label": "Put user in timeout"
+              },
+              "tooltip": "Put user in timeout",
+              "accessibilityData": {
+                "accessibilityData": {
+                  "label": "Put user in timeout"
+                }
+              }
+            }
+          },
+          {
+            "buttonRenderer": {
+              "style": "STYLE_DEFAULT",
+              "size": "SIZE_DEFAULT",
+              "isDisabled": false,
+              "serviceEndpoint": {
+                "commandMetadata": {
+                  "webCommandMetadata": {
+                    "sendPost": true,
+                    "apiUrl": "OPAQUE"
+                  }
+                },
+                "moderateLiveChatEndpoint": {
+                  "params": "OPAQUE"
+                }
+              },
+              "icon": {
+                "iconType": "REMOVE_CIRCLE"
+              },
+              "accessibility": {
+                "label": "Hide user on this channel"
+              },
+              "tooltip": "Hide user on this channel",
+              "accessibilityData": {
+                "accessibilityData": {
+                  "label": "Hide user on this channel"
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "markChatItemAsDeletedAction": {
+    "deletedStateMessage": {
+      "runs": [
+        {
+          "text": "[message retracted]"
+        }
+      ]
+    },
+    "targetItemId": "item-4"
+  }
+}

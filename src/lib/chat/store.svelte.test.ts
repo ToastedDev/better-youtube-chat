@@ -1,8 +1,13 @@
 import { describe, expect, test } from 'vitest';
 import type { ChatAction } from '../youtube/types';
 import { ChatStore } from './store.svelte';
+import automod from './fixtures/automod.json';
+import automodShown from './fixtures/automod-shown.json';
+import markDeleted from './fixtures/mark-deleted.json';
 import memberNew from './fixtures/member-new.json';
 import paidSticker from './fixtures/paid-sticker.json';
+import placeholder from './fixtures/placeholder.json';
+import removeItem from './fixtures/remove-item.json';
 import textEmoji from './fixtures/text-emoji.json';
 
 /** A copy of a fixture's action with a fresh id (and optionally another author). */
@@ -79,6 +84,42 @@ describe('live chat', () => {
     });
     store.apply({ reset: false, actions: [withId(paidSticker, 'slot')] });
     expect(store.items.map((i) => i.kind)).toEqual(['sticker', 'text']);
+  });
+});
+
+describe('moderation actions (real samples)', () => {
+  test('AutoMod: Show replaces the held message with the public one', () => {
+    const store = new ChatStore();
+    store.apply({ reset: true, actions: [automod as ChatAction, withId(textEmoji, 'after')] });
+    expect(store.items[0]).toMatchObject({ id: 'item-1', kind: 'automod' });
+
+    store.apply({ reset: false, actions: [automodShown as ChatAction] });
+    expect(store.items[0]).toMatchObject({ id: 'item-1', kind: 'text' });
+    expect(ids(store)).toEqual(['item-1', 'after']);
+  });
+
+  test('a retracted message', () => {
+    const store = new ChatStore();
+    store.apply({ reset: true, actions: [withId(textEmoji, 'item-4')] });
+    store.apply({ reset: false, actions: [markDeleted as ChatAction] });
+    expect(store.items[0]).toMatchObject({ deleted: { text: '[message retracted]' } });
+  });
+
+  test('a removed message', () => {
+    const store = new ChatStore();
+    store.apply({ reset: true, actions: [withId(textEmoji, 'item-5'), withId(textEmoji, 'other')] });
+    store.apply({ reset: false, actions: [removeItem as ChatAction] });
+    expect(ids(store)).toEqual(['other']);
+  });
+
+  test('a placeholder slot is filled when its item arrives', () => {
+    const store = new ChatStore();
+    store.apply({ reset: true, actions: [placeholder as ChatAction, withId(textEmoji, 'after')] });
+    store.apply({ reset: false, actions: [withId(paidSticker, 'item-6')] });
+    expect(store.items.map((i) => [i.id, i.kind])).toEqual([
+      ['item-6', 'sticker'],
+      ['after', 'text'],
+    ]);
   });
 });
 

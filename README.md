@@ -48,10 +48,11 @@ new action as a fixture and a test fails on the field that moved.
 
 Fixtures come from real streams and **must be anonymized** before they're committed: author names
 become `@viewerN`, channel ids `UC_channel_N`, item ids `item-N`, image URLs
-`https://yt3.ggpht.com/placeholder-N`, opaque tokens (params, tracking, entity keys) `OPAQUE`, and
-chat text, channel names and level names are replaced with plain examples. Chat replays work as a
-source: their actions are the live ones wrapped in `replayChatItemAction`, so old VODs cover item
-types a live stream may not have.
+`https://yt3.ggpht.com/placeholder-N`, opaque tokens (params, tracking, entity keys) `OPAQUE`,
+`@handles` inside any text `@viewerN`, and chat text, channel names and level names are replaced with
+plain examples. YouTube's own wording (notices, "[message retracted]", AutoMod headers) and its
+help links can stay. Chat replays work as a source: their actions are the live ones wrapped in
+`replayChatItemAction`, so old VODs cover item types a live stream may not have.
 
 ### Comparing with YouTube's own list
 Turn off **Better YouTube Chat** in the chat menu, or press **Alt+Shift+N**, to switch between our

@@ -2,18 +2,33 @@ import { describe, expect, test } from 'vitest';
 import type { ChatAction } from '../youtube/types';
 import type { ChatItem } from './model';
 import { argbToCss, parseItem, parseText, plainText } from './parse';
+import automod from './fixtures/automod.json';
+import donation from './fixtures/donation.json';
+import engagementPoll from './fixtures/engagement-poll.json';
+import engagementWelcome from './fixtures/engagement-welcome.json';
 import giftPurchase from './fixtures/gift-purchase.json';
 import giftRedemption from './fixtures/gift-redemption.json';
 import memberMilestoneEmpty from './fixtures/member-milestone-empty.json';
 import memberMilestone from './fixtures/member-milestone.json';
+import jewelsGift from './fixtures/jewels-gift.json';
 import memberNew from './fixtures/member-new.json';
+import modeChange from './fixtures/mode-change.json';
+import paidLike from './fixtures/paid-like.json';
 import paidMessage from './fixtures/paid-message.json';
 import paidSticker from './fixtures/paid-sticker.json';
+import placeholder from './fixtures/placeholder.json';
+import textCanModerate from './fixtures/text-can-moderate.json';
+import textDeletedState from './fixtures/text-deleted-state.json';
 import textEmoji from './fixtures/text-emoji.json';
+import textModerator from './fixtures/text-moderator.json';
+import textOwner from './fixtures/text-owner.json';
+import textRankChip from './fixtures/text-rank-chip.json';
+import textReplyChip from './fixtures/text-reply-chip.json';
 
-/** Parses a fixture's `addChatItemAction` and checks it produced the expected kind. */
+/** Parses a fixture's added (or replacement) item and checks it produced the expected kind. */
 function parse<K extends ChatItem['kind']>(fixture: unknown, kind: K): Extract<ChatItem, { kind: K }> {
-  const item = parseItem((fixture as ChatAction).addChatItemAction!.item);
+  const action = fixture as ChatAction;
+  const item = parseItem((action.addChatItemAction?.item ?? action.replaceChatItemAction?.replacementItem)!);
   expect(item?.kind).toBe(kind);
   return item as Extract<ChatItem, { kind: K }>;
 }
@@ -122,6 +137,117 @@ describe('memberships', () => {
       { type: 'text', text: 'received a gift membership by ', italic: true },
       { type: 'text', text: '@viewer3', bold: true, italic: true },
     ]);
+  });
+});
+
+describe('badges and chips', () => {
+  test('owner', () => {
+    const item = parse(textOwner, 'text');
+    expect(item.author).toMatchObject({ isOwner: true, isModerator: false });
+    // The owner badge has no icon of its own (the name chip shows it) but still sets the role.
+    expect(item.author.badges).toEqual([{ kind: 'icon', icon: 'OWNER', label: 'Owner' }]);
+  });
+
+  test('verified moderator', () => {
+    const item = parse(textModerator, 'text');
+    expect(item.author).toMatchObject({ isModerator: true, isVerified: true, isMember: false });
+    expect(item.author.badges.map((b) => b.label)).toEqual(['Verified', 'Moderator']);
+    expect(plainText(item.message)).toBe('@viewer7 Example message');
+  });
+
+  test('viewer leaderboard rank', () => {
+    const item = parse(textRankChip, 'text');
+    expect(item.chips).toEqual([
+      expect.objectContaining({ label: '#3', icon: 'CROWN_FILLED', background: 'rgba(221, 152, 255, 1)' }),
+    ]);
+    expect(item.chips[0]!.command).toBeDefined();
+  });
+
+  test('Super Chat reply', () => {
+    const item = parse(textReplyChip, 'text');
+    // "@name 💬": the icon goes after the label.
+    expect(item.chips).toEqual([
+      expect.objectContaining({ label: '@viewer6', icon: 'MESSAGE', iconTrailing: true }),
+    ]);
+  });
+
+  test('moderators can act on messages', () => {
+    expect(parse(textCanModerate, 'text').canModerate).toBe(true);
+    expect(parse(textEmoji, 'text').canModerate).toBe(false);
+  });
+});
+
+describe('moderation', () => {
+  test('AutoMod held message', () => {
+    const item = parse(automod, 'automod');
+    expect(item.author.name).toBe('@viewer1');
+    expect(plainText(item.header)).toBe('This message is held for review.');
+    expect(plainText(item.message)).toBe('Example message');
+    expect(item.info?.label).toBe('More information');
+    expect(item.info?.command.liveChatDialogEndpoint).toBeDefined();
+    expect(item.actions.map((a) => a.label)).toEqual(['Show', 'Hide']);
+    expect(item.actions.every((a) => a.command.moderateLiveChatEndpoint)).toBe(true);
+    expect(item.canModerate).toBe(true);
+  });
+
+  test('AutoMod: Hide replaces the held message with a deleted one', () => {
+    const item = parse(textDeletedState, 'text');
+    expect(item.deleted).toEqual({
+      text: 'Message automatically held for review, hidden by @viewer2.',
+      showOriginalLabel: 'View deleted message',
+    });
+  });
+});
+
+describe('other items', () => {
+  test('Jewels gift', () => {
+    const item = parse(jewelsGift, 'gift');
+    // YouTube pads the name with spaces.
+    expect(item.authorName).toBe('@viewer3');
+    expect(item.text).toBe('sent Go team!');
+    expect(item.image).toBeTruthy();
+    expect(item.imageLabel).toBe('@viewer3 sent a gift, Go team!');
+  });
+
+  test('fundraiser donation', () => {
+    const item = parse(donation, 'donation');
+    expect(plainText(item.text)).toBe('Anonymous donated $50.00');
+    expect(plainText(item.subtext)).toBe('to Example Fundraiser');
+  });
+
+  test('welcome message with its Learn more link inline', () => {
+    const item = parse(engagementWelcome, 'engagement');
+    expect(item.icon).toBe('YOUTUBE_ROUND');
+    expect(item.message.at(-1)).toEqual({
+      type: 'text',
+      text: 'Learn more',
+      href: 'https://support.google.com/youtube/answer/2853856?hl=en#safe',
+    });
+  });
+
+  test('poll results', () => {
+    const item = parse(engagementPoll, 'engagement');
+    expect(item.icon).toBe('POLL');
+    expect(plainText(item.message)).toBe('Example poll\na (50%)\nb (50%)\nc (0%)\nd (0%)\n\nPoll complete: 2 votes');
+  });
+
+  test('chat mode change', () => {
+    const item = parse(modeChange, 'mode-change');
+    expect(plainText(item.text)).toBe('Slow mode is on');
+    expect(plainText(item.subtext)).toBe('Send a message every 1 minute');
+  });
+
+  test('placeholder', () => {
+    expect(parse(placeholder, 'placeholder')).toEqual({ kind: 'placeholder', id: 'item-6' });
+  });
+
+  test('Super Chat like, reply and heart', () => {
+    const item = parse(paidLike, 'paid');
+    expect(item.like).toMatchObject({ placeholder: 'Like' });
+    expect(item.like?.like).toBeDefined();
+    expect(item.like?.unlike).toBeDefined();
+    expect(item.reply?.placeholder).toBe('Reply');
+    expect(item.heart?.label).toBe('❤ by @viewer12');
   });
 });
 
