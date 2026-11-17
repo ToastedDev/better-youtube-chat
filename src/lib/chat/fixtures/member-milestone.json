@@ -1,0 +1,96 @@
+{
+  "addChatItemAction": {
+    "item": {
+      "liveChatMembershipItemRenderer": {
+        "id": "item-5",
+        "timestampUsec": "1725722563501448",
+        "timestampText": {
+          "simpleText": "1:19:37"
+        },
+        "authorExternalChannelId": "UC_channel_4",
+        "headerPrimaryText": {
+          "runs": [
+            {
+              "text": "Member for "
+            },
+            {
+              "text": "7"
+            },
+            {
+              "text": " months"
+            }
+          ]
+        },
+        "headerSubtext": {
+          "simpleText": "Level One"
+        },
+        "message": {
+          "runs": [
+            {
+              "text": "Example milestone message"
+            }
+          ]
+        },
+        "authorName": {
+          "simpleText": "@viewer4"
+        },
+        "authorPhoto": {
+          "thumbnails": [
+            {
+              "url": "https://yt3.ggpht.com/placeholder-17",
+              "width": 32,
+              "height": 32
+            },
+            {
+              "url": "https://yt3.ggpht.com/placeholder-18",
+              "width": 64,
+              "height": 64
+            }
+          ]
+        },
+        "authorBadges": [
+          {
+            "liveChatAuthorBadgeRenderer": {
+              "customThumbnail": {
+                "thumbnails": [
+                  {
+                    "url": "https://yt3.ggpht.com/placeholder-9",
+                    "width": 16,
+                    "height": 16
+                  },
+                  {
+                    "url": "https://yt3.ggpht.com/placeholder-10",
+                    "width": 32,
+                    "height": 32
+                  }
+                ]
+              },
+              "tooltip": "Member (6 months)",
+              "accessibility": {
+                "accessibilityData": {
+                  "label": "Member (6 months)"
+                }
+              }
+            }
+          }
+        ],
+        "contextMenuEndpoint": {
+          "commandMetadata": {
+            "webCommandMetadata": {
+              "ignoreNavigation": true
+            }
+          },
+          "liveChatItemContextMenuEndpoint": {
+            "params": "OPAQUE"
+          }
+        },
+        "contextMenuAccessibility": {
+          "accessibilityData": {
+            "label": "Chat actions"
+          }
+        }
+      }
+    },
+    "clientId": "OPAQUE"
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "addChatItemAction": {
+    "item": {
+      "liveChatSponsorshipsGiftRedemptionAnnouncementRenderer": {
+        "id": "item-8",
+        "timestampUsec": "1708444429712781",
+        "timestampText": {
+          "simpleText": "1:48:01"
+        },
+        "authorExternalChannelId": "UC_channel_6",
+        "authorName": {
+          "simpleText": "@viewer6"
+        },
+        "authorPhoto": {
+          "thumbnails": [
+            {
+              "url": "https://yt3.ggpht.com/placeholder-22",
+              "width": 32,
+              "height": 32
+            },
+            {
+              "url": "https://yt3.ggpht.com/placeholder-23",
+              "width": 64,
+              "height": 64
+            }
+          ]
+        },
+        "message": {
+          "runs": [
+            {
+              "text": "received a gift membership by ",
+              "italics": true
+            },
+            {
+              "text": "@viewer3",
+              "bold": true,
+              "italics": true
+            }
+          ]
+        },
+        "contextMenuEndpoint": {
+          "commandMetadata": {
+            "webCommandMetadata": {
+              "ignoreNavigation": true
+            }
+          },
+          "liveChatItemContextMenuEndpoint": {
+            "params": "OPAQUE"
+          }
+        },
+        "contextMenuAccessibility": {
+          "accessibilityData": {
+            "label": "Chat actions"
+          }
+        }
+      }
+    },
+    "clientId": "OPAQUE"
+  }
+}

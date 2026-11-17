@@ -1,0 +1,105 @@
+{
+  "addChatItemAction": {
+    "item": {
+      "liveChatSponsorshipsGiftPurchaseAnnouncementRenderer": {
+        "id": "item-7",
+        "timestampUsec": "1708444428682662",
+        "authorExternalChannelId": "UC_channel_3",
+        "header": {
+          "liveChatSponsorshipsHeaderRenderer": {
+            "authorName": {
+              "simpleText": "@viewer3"
+            },
+            "authorPhoto": {
+              "thumbnails": [
+                {
+                  "url": "https://yt3.ggpht.com/placeholder-12",
+                  "width": 32,
+                  "height": 32
+                },
+                {
+                  "url": "https://yt3.ggpht.com/placeholder-13",
+                  "width": 64,
+                  "height": 64
+                }
+              ]
+            },
+            "primaryText": {
+              "runs": [
+                {
+                  "text": "Sent ",
+                  "bold": true
+                },
+                {
+                  "text": "20",
+                  "bold": true
+                },
+                {
+                  "text": " ",
+                  "bold": true
+                },
+                {
+                  "text": "Example Channel",
+                  "bold": true
+                },
+                {
+                  "text": " gift memberships",
+                  "bold": true
+                }
+              ]
+            },
+            "authorBadges": [
+              {
+                "liveChatAuthorBadgeRenderer": {
+                  "customThumbnail": {
+                    "thumbnails": [
+                      {
+                        "url": "https://yt3.ggpht.com/placeholder-5",
+                        "width": 16,
+                        "height": 16
+                      },
+                      {
+                        "url": "https://yt3.ggpht.com/placeholder-6",
+                        "width": 32,
+                        "height": 32
+                      }
+                    ]
+                  },
+                  "tooltip": "New member",
+                  "accessibility": {
+                    "accessibilityData": {
+                      "label": "New member"
+                    }
+                  }
+                }
+              }
+            ],
+            "contextMenuEndpoint": {
+              "commandMetadata": {
+                "webCommandMetadata": {
+                  "ignoreNavigation": true
+                }
+              },
+              "liveChatItemContextMenuEndpoint": {
+                "params": "OPAQUE"
+              }
+            },
+            "contextMenuAccessibility": {
+              "accessibilityData": {
+                "label": "Chat actions"
+              }
+            },
+            "image": {
+              "thumbnails": [
+                {
+                  "url": "https://yt3.ggpht.com/placeholder-21"
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "clientId": "OPAQUE"
+  }
+}

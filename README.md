@@ -37,8 +37,21 @@ choose `.output/chrome-mv3-dev`. Reload the YouTube tab after the extension relo
 
 ```sh
 pnpm check    # svelte-check / TypeScript
+pnpm test     # parser and store tests (Vitest)
 pnpm build    # production build in .output/chrome-mv3
 ```
+
+### Tests
+`src/lib/chat/parse.test.ts` and `store.svelte.test.ts` run real chat actions from
+`src/lib/chat/fixtures/` through the parser and the store. When YouTube changes a renderer, add the
+new action as a fixture and a test fails on the field that moved.
+
+Fixtures come from real streams and **must be anonymized** before they're committed: author names
+become `@viewerN`, channel ids `UC_channel_N`, item ids `item-N`, image URLs
+`https://yt3.ggpht.com/placeholder-N`, opaque tokens (params, tracking, entity keys) `OPAQUE`, and
+chat text, channel names and level names are replaced with plain examples. Chat replays work as a
+source: their actions are the live ones wrapped in `replayChatItemAction`, so old VODs cover item
+types a live stream may not have.
 
 ### Comparing with YouTube's own list
 Turn off **Better YouTube Chat** in the chat menu, or press **Alt+Shift+N**, to switch between our
